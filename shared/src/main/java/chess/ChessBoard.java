@@ -40,7 +40,34 @@ private ChessPiece[][] board = new ChessPiece[8][8];
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+
+        int row_ind = 0;
+        int col_ind = 0;
+
+        ChessPiece P = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
+
+        for (ChessPiece[] row : board){
+            for (ChessPiece piece : row) {
+                ChessPosition currPosition = new ChessPosition(row_ind, col_ind);
+                addPiece(currPosition, P);
+                col_ind += 1;
+            }
+            row_ind += 1;
+            col_ind = 0;
+        }
+
+//        ChessPiece R = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
+//        ChessPosition wR = new ChessPosition(1,1);
+//        addPiece(wR, R);
+    }
+
+    public void printBoard() {
+        for (ChessPiece[] row : board){
+            for (ChessPiece piece : row) {
+                System.out.print(piece.toString());
+            }
+            System.out.println();
+        }
     }
 
     @Override
