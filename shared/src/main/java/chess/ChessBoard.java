@@ -64,7 +64,7 @@ private ChessPiece[][] board = new ChessPiece[8][8];
     public void printBoard() {
         for (ChessPiece[] row : board){
             for (ChessPiece piece : row) {
-                System.out.print(piece.toString());
+                System.out.print(piece.toString() + " ");
             }
             System.out.println();
         }
