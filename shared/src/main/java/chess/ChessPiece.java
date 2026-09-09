@@ -13,6 +13,11 @@ public class ChessPiece {
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
     }
 
+    @Override
+    public String toString() {
+        return "ChessPiece{}";
+    }
+
     /**
      * The various different chess piece options
      */
