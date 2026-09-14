@@ -34,6 +34,13 @@ public class ChessPosition {
         return col - 1;
     }
 
+
+    public ChessPosition addOffset(int rowOffset, int colOffset) {
+        int newRow = row + rowOffset;
+        int newCol = col + colOffset;
+        return new ChessPosition(newRow, newCol);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {

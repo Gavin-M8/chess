@@ -60,16 +60,16 @@ private ChessPiece[][] board = new ChessPiece[8][8];
         addPiece(new ChessPosition(7,2), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
         addPiece(new ChessPosition(7,1), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
 
-//        // Blank positions
-//        ChessPosition[] blankPositions = {
-//                new ChessPosition(3,1),new ChessPosition(3,2),new ChessPosition(3,3),new ChessPosition(3,4),new ChessPosition(3,5),new ChessPosition(3,6),new ChessPosition(3,7),new ChessPosition(3,8),
-//                new ChessPosition(4,1),new ChessPosition(4,2),new ChessPosition(4,3),new ChessPosition(4,4),new ChessPosition(4,5),new ChessPosition(4,6),new ChessPosition(4,7),new ChessPosition(4,8),
-//                new ChessPosition(5,1),new ChessPosition(5,2),new ChessPosition(5,3),new ChessPosition(5,4),new ChessPosition(5,5),new ChessPosition(5,6),new ChessPosition(5,7),new ChessPosition(5,8),
-//                new ChessPosition(6,1),new ChessPosition(6,2),new ChessPosition(6,3),new ChessPosition(6,4),new ChessPosition(6,5),new ChessPosition(6,6),new ChessPosition(6,7),new ChessPosition(6,8),
-//        };
-//        for (ChessPosition position : blankPositions) {
-//            addPiece(position, null);
-//        }
+        // Blank positions
+        ChessPosition[] blankPositions = {
+                new ChessPosition(3,1),new ChessPosition(3,2),new ChessPosition(3,3),new ChessPosition(3,4),new ChessPosition(3,5),new ChessPosition(3,6),new ChessPosition(3,7),new ChessPosition(3,8),
+                new ChessPosition(4,1),new ChessPosition(4,2),new ChessPosition(4,3),new ChessPosition(4,4),new ChessPosition(4,5),new ChessPosition(4,6),new ChessPosition(4,7),new ChessPosition(4,8),
+                new ChessPosition(5,1),new ChessPosition(5,2),new ChessPosition(5,3),new ChessPosition(5,4),new ChessPosition(5,5),new ChessPosition(5,6),new ChessPosition(5,7),new ChessPosition(5,8),
+                new ChessPosition(6,1),new ChessPosition(6,2),new ChessPosition(6,3),new ChessPosition(6,4),new ChessPosition(6,5),new ChessPosition(6,6),new ChessPosition(6,7),new ChessPosition(6,8),
+        };
+        for (ChessPosition position : blankPositions) {
+            addPiece(position, null);
+        }
 
         // White pieces
         addPiece(new ChessPosition(2,8), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN));
@@ -124,6 +124,14 @@ private ChessPiece[][] board = new ChessPiece[8][8];
             System.out.println();
         }
         System.out.println();
+    }
+
+    public boolean isValidMove(ChessPosition target, ChessGame.TeamColor color) {
+        // not valid if out of bounds
+        if ((target.getRow() > 8) || (target.getRow() < 1) || (target.getColumn() > 8) || (target.getColumn() < 1)) { return false; }
+        // not valid if same color piece is on target position
+        else if (board[target.getRow()][target.getColumn()].getTeamColor().equals(color)) {return false;}
+        else return true;
     }
 
 }
