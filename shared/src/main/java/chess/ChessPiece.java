@@ -85,7 +85,14 @@ public class ChessPiece {
                 positionLoop:
                 for (int[] offset : direction) {
                     ChessPosition target = myPosition.addOffset(offset[0], offset[1]);
-                    if (board.isValidMove(target, getTeamColor())) {
+                    boolean canMove = board.isValidMove(target, getTeamColor())[0];
+                    boolean isCapture = board.isValidMove(target, getTeamColor())[1];
+
+                    if (canMove && isCapture) {
+                        moves.add(new ChessMove(myPosition, target, null));
+                        continue directionLoop;
+                    }
+                    else if (canMove) {
                         moves.add(new ChessMove(myPosition, target, null));
                     }
                     else {

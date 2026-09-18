@@ -112,7 +112,12 @@ private ChessPiece[][] board = new ChessPiece[8][8];
     }
 
     public void printBoard() {
-        for (ChessPiece[] row : board){
+        ChessPiece[][] flippedBoard = new ChessPiece[8][8];
+        for (int i = 7; i > -1; i--){
+            flippedBoard[i] = board[(i - 7) * -1];
+        }
+
+        for (ChessPiece[] row : flippedBoard){
             for (ChessPiece piece : row) {
                 if (piece != null) {
                     System.out.print("| " + piece.toString() + " |");
@@ -126,15 +131,36 @@ private ChessPiece[][] board = new ChessPiece[8][8];
         System.out.println();
     }
 
-    public boolean isValidMove(ChessPosition target, ChessGame.TeamColor color) {
-        // not valid if out of bounds
-        if ((target.getRow() > 8) || (target.getRow() < 1) || (target.getColumn() > 8) || (target.getColumn() < 1)) { return false; }
-        else if (getPiece(target) == null) {
-            return true;
+    public boolean[] isValidMove(ChessPosition target, ChessGame.TeamColor color) {
+        boolean[] results = new boolean[2];
+        boolean outOfBounds = (target.getRow() > 8) || (target.getRow() < 1) || (target.getColumn() > 8) || (target.getColumn() < 1);
+
+        // not valid if out of bounds -- canMove false, isCapture false
+        if (outOfBounds) {
+            results[0] = false;
+            results[1] = false;
+            return results;
         }
-        // not valid if same color piece is on target position
-        else if (board[target.getRow() - 1][target.getColumn() - 1].getTeamColor().equals(color)) {return false;}
-        else return true;
+
+        // valid if empty -- canMove true, isCapture false
+        else if (getPiece(target) == null) {
+            results[0] = true;
+            results[1] = false;
+            return results;
+        }
+
+        // not valid if same color piece is on target position -- canMove false, isCapture false
+        else if (board[target.getRow() - 1][target.getColumn() - 1].getTeamColor().equals(color)) {
+            results[0] = false;
+            results[1] = false;
+            return results;}
+
+        // valid if capture -- canMove true, isCapture true
+        else {
+            results[0] = true;
+            results[1] = true;
+            return results;
+        }
     }
 
 }
