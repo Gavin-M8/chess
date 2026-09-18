@@ -80,6 +80,7 @@ public class ChessPiece {
                     {{-1,-1}, {-2,-2}, {-3,-3}, {-4,-4}, {-5,-5}, {-6,-6}, {-7,-7}},
                     {{1,-1}, {2,-2}, {3,-3}, {4,-4}, {5,-5}, {6,-6}, {7,-7}}
             };
+
             directionLoop:
             for (int[][] direction : offsets) {
                 positionLoop:
@@ -115,6 +116,7 @@ public class ChessPiece {
                     {{1,-1}},
                     {{1,0}}
             };
+
             directionLoop:
             for (int[][] direction : offsets) {
                 positionLoop:
@@ -151,6 +153,40 @@ public class ChessPiece {
                     {{0,-1}, {0,-2}, {0,-3}, {0,-4}, {0,-5}, {0,-6}, {0,-7}},
                     {{1,-1}, {2,-2}, {3,-3}, {4,-4}, {5,-5}, {6,-6}, {7,-7}}
             };
+
+            directionLoop:
+            for (int[][] direction : offsets) {
+                positionLoop:
+                for (int[] offset : direction) {
+                    ChessPosition target = myPosition.addOffset(offset[0], offset[1]);
+                    boolean canMove = board.isValidMove(target, getTeamColor())[0];
+                    boolean isCapture = board.isValidMove(target, getTeamColor())[1];
+
+                    if (canMove && isCapture) {
+                        moves.add(new ChessMove(myPosition, target, null));
+                        continue directionLoop;
+                    }
+                    else if (canMove) {
+                        moves.add(new ChessMove(myPosition, target, null));
+                    }
+                    else {
+                        continue directionLoop;
+                    }
+                }
+            }
+            return moves;
+        }
+
+        else if (piece.getPieceType() == PieceType.ROOK) {
+
+            List<ChessMove> moves = new ArrayList<>();
+            int[][][] offsets = {
+                    {{0,1}, {0,2}, {0,3}, {0,4}, {0,5}, {0,6}, {0,7}},
+                    {{1,0}, {2,0}, {3,0}, {4,0}, {5,0}, {6,0}, {7,0}},
+                    {{-1,0}, {-2,0}, {-3,0}, {-4,0}, {-5,0}, {-6,0}, {-7,0}},
+                    {{0,-1}, {0,-2}, {0,-3}, {0,-4}, {0,-5}, {0,-6}, {0,-7}},
+            };
+
             directionLoop:
             for (int[][] direction : offsets) {
                 positionLoop:
