@@ -210,6 +210,43 @@ public class ChessPiece {
             return moves;
         }
 
+        else if (piece.getPieceType() == PieceType.KNIGHT) {
+
+            List<ChessMove> moves = new ArrayList<>();
+            int[][][] offsets = {
+                    {{2,1}},
+                    {{2,-1}},
+                    {{1,2}},
+                    {{1,-2}},
+                    {{-1,-2}},
+                    {{-1,2}},
+                    {{-2,-1}},
+                    {{-2,1}}
+            };
+
+            directionLoop:
+            for (int[][] direction : offsets) {
+                positionLoop:
+                for (int[] offset : direction) {
+                    ChessPosition target = myPosition.addOffset(offset[0], offset[1]);
+                    boolean canMove = board.isValidMove(target, getTeamColor())[0];
+                    boolean isCapture = board.isValidMove(target, getTeamColor())[1];
+
+                    if (canMove && isCapture) {
+                        moves.add(new ChessMove(myPosition, target, null));
+                        continue directionLoop;
+                    }
+                    else if (canMove) {
+                        moves.add(new ChessMove(myPosition, target, null));
+                    }
+                    else {
+                        continue directionLoop;
+                    }
+                }
+            }
+            return moves;
+        }
+
         return List.of();
 
     }
