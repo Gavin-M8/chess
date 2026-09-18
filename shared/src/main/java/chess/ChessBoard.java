@@ -22,7 +22,7 @@ private ChessPiece[][] board = new ChessPiece[8][8];
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        board[position.getRow()][position.getColumn()] = piece;
+        board[position.getRow() - 1][position.getColumn() - 1] = piece;
     }
     /**
      * Gets a chess piece on the chessboard
@@ -32,7 +32,7 @@ private ChessPiece[][] board = new ChessPiece[8][8];
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        return board[position.getRow()][position.getColumn()];
+        return board[position.getRow() - 1][position.getColumn() - 1];
     }
 
     /**
@@ -129,8 +129,11 @@ private ChessPiece[][] board = new ChessPiece[8][8];
     public boolean isValidMove(ChessPosition target, ChessGame.TeamColor color) {
         // not valid if out of bounds
         if ((target.getRow() > 8) || (target.getRow() < 1) || (target.getColumn() > 8) || (target.getColumn() < 1)) { return false; }
+        else if (getPiece(target) == null) {
+            return true;
+        }
         // not valid if same color piece is on target position
-        else if (board[target.getRow()][target.getColumn()].getTeamColor().equals(color)) {return false;}
+        else if (board[target.getRow() - 1][target.getColumn() - 1].getTeamColor().equals(color)) {return false;}
         else return true;
     }
 

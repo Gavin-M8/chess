@@ -74,22 +74,25 @@ public class ChessPiece {
         if (piece.getPieceType() == PieceType.BISHOP) {
 
             List<ChessMove> moves = new ArrayList<>();
-            int[][] offsets = {
-                    {1,1}, {-1,1}, {-1,-1}, {1,-1},
-                    {2,2}, {-2,2}, {-2,-2}, {2,-2},
-                    {3,3}, {-3,3}, {-3,-3}, {3,-3},
-                    {4,4}, {-4,4}, {-4,-4}, {4,-4},
-                    {5,5}, {-5,5}, {-5,-5}, {5,-5},
-                    {6,6}, {-6,6}, {-6,-6}, {6,-6},
-                    {7,7}, {-7,7}, {-7,-7}, {7,-7},
+            int[][][] offsets = {
+                    {{1,1}, {2,2}, {3,3}, {4,4}, {5,5}, {6,6}, {7,7}},
+                    {{-1,1}, {-2,2}, {-3,3}, {-4,4}, {-5,5}, {-6,6}, {-7,7}},
+                    {{-1,-1}, {-2,-2}, {-3,-3}, {-4,-4}, {-5,-5}, {-6,-6}, {-7,-7}},
+                    {{1,-1}, {2,-2}, {3,-3}, {4,-4}, {5,-5}, {6,-6}, {7,-7}}
             };
-            for (int[] offset : offsets) {
-                ChessPosition target = myPosition.addOffset(offset[0], offset[1]);
-                if (board.isValidMove(target, getTeamColor())) {
-                    moves.add(new ChessMove(myPosition, target, null));
+            directionLoop:
+            for (int[][] direction : offsets) {
+                positionLoop:
+                for (int[] offset : direction) {
+                    ChessPosition target = myPosition.addOffset(offset[0], offset[1]);
+                    if (board.isValidMove(target, getTeamColor())) {
+                        moves.add(new ChessMove(myPosition, target, null));
+                    }
+                    else {
+                        continue directionLoop;
+                    }
                 }
             }
-
             return moves;
         }
 
