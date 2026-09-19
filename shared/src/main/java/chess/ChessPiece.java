@@ -298,16 +298,39 @@ public class ChessPiece {
                     boolean canMove = board.isValidMove(target, getTeamColor())[0];
                     boolean isCapture = board.isValidMove(target, getTeamColor())[1];
 
-                    if (canMove && isCapture) {
-                        moves.add(new ChessMove(myPosition, target, null));
-                        continue directionLoop;
-                    }
-                    else if (canMove) {
-                        moves.add(new ChessMove(myPosition, target, null));
+                    if (canPromote) {
+                        if (canMove && isCapture) {
+                            moves.add(new ChessMove(myPosition, target, PieceType.QUEEN));
+                            moves.add(new ChessMove(myPosition, target, PieceType.BISHOP));
+                            moves.add(new ChessMove(myPosition, target, PieceType.ROOK));
+                            moves.add(new ChessMove(myPosition, target, PieceType.KNIGHT));
+                            continue directionLoop;
+                        }
+                        else if (canMove) {
+                            moves.add(new ChessMove(myPosition, target, PieceType.QUEEN));
+                            moves.add(new ChessMove(myPosition, target, PieceType.BISHOP));
+                            moves.add(new ChessMove(myPosition, target, PieceType.ROOK));
+                            moves.add(new ChessMove(myPosition, target, PieceType.KNIGHT));
+                        }
+                        else {
+                            continue directionLoop;
+                        }
                     }
                     else {
-                        continue directionLoop;
+                        if (canMove && isCapture) {
+                            moves.add(new ChessMove(myPosition, target, null));
+                            continue directionLoop;
+                        }
+                        else if (canMove) {
+                            moves.add(new ChessMove(myPosition, target, null));
+                        }
+                        else {
+                            continue directionLoop;
+                        }
                     }
+
+
+
                 }
             }
             return moves;
