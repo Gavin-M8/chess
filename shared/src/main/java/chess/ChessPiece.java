@@ -257,35 +257,36 @@ public class ChessPiece {
             boolean whiteEnemyRight = (board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1)) != null) && (board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1)).getTeamColor() == ChessGame.TeamColor.BLACK);
 
             List<ChessMove> moves = new ArrayList<>();
+            int[][][] offsets;
 
             if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
                 if (myPosition.getRow() == 2) {canPromote = true;}
                 if (myPosition.getRow() == 7) {
-                    if (blackEnemyLeft && blackEnemyRight) { int[][][] offsets = { {{-1,-1}},{{-1,1}},{{-1,0}},{{-2,0}} }; }
-                    else if (blackEnemyLeft) { int[][][] offsets = { {{-1,-1}},{{-1,0}},{{-2,0}} }; }
-                    else if (blackEnemyRight) { int[][][] offsets = { {{-1,1}},{{-1,0}},{{-2,0}} }; }
-                    else { int[][][] offsets = { {{-1,0}},{{-2,0}} }; }
+                    if (blackEnemyLeft && blackEnemyRight) { offsets = new int[][][] { {{-1,-1}},{{-1,1}},{{-1,0}},{{-2,0}} }; }
+                    else if (blackEnemyLeft) { offsets = new int[][][] { {{-1,-1}},{{-1,0}},{{-2,0}} }; }
+                    else if (blackEnemyRight) { offsets = new int[][][] { {{-1,1}},{{-1,0}},{{-2,0}} }; }
+                    else { offsets = new int[][][] { {{-1,0}},{{-2,0}} }; }
                 }
                 else {
-                    if (blackEnemyLeft && blackEnemyRight) {int[][][] offsets = {{{-1, -1}}, {{-1, 1}}, {{-1, 0}}};}
-                    else if (blackEnemyLeft) {int[][][] offsets = {{{-1, -1}}, {{-1, 0}}};}
-                    else if (blackEnemyRight) {int[][][] offsets = {{{-1, 1}}, {{-1, 0}}};}
-                    else {int[][][] offsets = {{{-1, 0}}};}
+                    if (blackEnemyLeft && blackEnemyRight) { offsets = new int[][][] {{{-1, -1}}, {{-1, 1}}, {{-1, 0}}};}
+                    else if (blackEnemyLeft) { offsets = new int[][][] {{{-1, -1}}, {{-1, 0}}};}
+                    else if (blackEnemyRight) { offsets = new int[][][] {{{-1, 1}}, {{-1, 0}}};}
+                    else { offsets = new int[][][] {{{-1, 0}}};}
                 }
             }
             else {
                 if (myPosition.getRow() == 7) {canPromote = true;}
                 if (myPosition.getRow() == 2) {
-                    if (whiteEnemyLeft && whiteEnemyRight) { int[][][] offsets = { {{1,-1}},{{1,1}},{{1,0}},{{2,0}} }; }
-                    else if (whiteEnemyLeft) { int[][][] offsets = { {{1,-1}},{{1,0}},{{2,0}} }; }
-                    else if (whiteEnemyRight) { int[][][] offsets = { {{1,1}},{{1,0}},{{2,0}} }; }
-                    else { int[][][] offsets = { {{1,0}},{{2,0}} }; }
+                    if (whiteEnemyLeft && whiteEnemyRight) { offsets = new int[][][] { {{1,-1}},{{1,1}},{{1,0}},{{2,0}} }; }
+                    else if (whiteEnemyLeft) { offsets = new int[][][] { {{1,-1}},{{1,0}},{{2,0}} }; }
+                    else if (whiteEnemyRight) { offsets = new int[][][] { {{1,1}},{{1,0}},{{2,0}} }; }
+                    else { offsets = new int[][][] { {{1,0}},{{2,0}} }; }
                 }
                 else {
-                    if (whiteEnemyLeft && whiteEnemyRight) { int[][][] offsets = { {{1,-1}},{{1,1}},{{1,0}} }; }
-                    else if (whiteEnemyLeft) { int[][][] offsets = { {{1,-1}},{{1,0}} }; }
-                    else if (whiteEnemyRight) { int[][][] offsets = { {{1,1}},{{1,0}} }; }
-                    else { int[][][] offsets = { {{1,0}} }; }
+                    if (whiteEnemyLeft && whiteEnemyRight) { offsets = new int[][][] { {{1,-1}},{{1,1}},{{1,0}} }; }
+                    else if (whiteEnemyLeft) { offsets = new int[][][] { {{1,-1}},{{1,0}} }; }
+                    else if (whiteEnemyRight) { offsets = new int[][][] { {{1,1}},{{1,0}} }; }
+                    else { offsets = new int[][][] { {{1,0}} }; }
                 }
             }
 
