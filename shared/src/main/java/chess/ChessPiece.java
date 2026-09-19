@@ -290,6 +290,8 @@ public class ChessPiece {
                 }
             }
 
+            int[][] potentiallyBlocked = new int[][] {{1,0}, {-1,0}, {2,0}, {-2,0}};
+
             directionLoop:
             for (int[][] direction : offsets) {
                 positionLoop:
@@ -300,6 +302,13 @@ public class ChessPiece {
 
                     if (canPromote) {
                         if (canMove && isCapture) {
+
+                            for (int[] potentialOffset : potentiallyBlocked) {
+                                if (offset == potentialOffset) {
+                                    continue directionLoop;
+                                }
+                            }
+
                             moves.add(new ChessMove(myPosition, target, PieceType.QUEEN));
                             moves.add(new ChessMove(myPosition, target, PieceType.BISHOP));
                             moves.add(new ChessMove(myPosition, target, PieceType.ROOK));
@@ -318,6 +327,13 @@ public class ChessPiece {
                     }
                     else {
                         if (canMove && isCapture) {
+
+                            for (int[] potentialOffset : potentiallyBlocked) {
+                                if (offset == potentialOffset) {
+                                    continue directionLoop;
+                                }
+                            }
+
                             moves.add(new ChessMove(myPosition, target, null));
                             continue directionLoop;
                         }
