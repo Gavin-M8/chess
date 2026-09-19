@@ -247,6 +247,71 @@ public class ChessPiece {
             return moves;
         }
 
+        else if (piece.getPieceType() == PieceType.PAWN) {
+
+            // logic to handle special pawn conditions
+            boolean canPromote = false;
+            boolean blackEnemyLeft = (board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1)) != null) && (board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1)).getTeamColor() == ChessGame.TeamColor.WHITE);
+            boolean blackEnemyRight = (board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1)) != null) && (board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1)).getTeamColor() == ChessGame.TeamColor.WHITE);
+            boolean whiteEnemyLeft = (board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1)) != null) && (board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1)).getTeamColor() == ChessGame.TeamColor.BLACK);
+            boolean whiteEnemyRight = (board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1)) != null) && (board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1)).getTeamColor() == ChessGame.TeamColor.BLACK);
+
+            List<ChessMove> moves = new ArrayList<>();
+
+            if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
+                if (myPosition.getRow() == 2) {canPromote = true;}
+                if (myPosition.getRow() == 7) {
+                    if (blackEnemyLeft && blackEnemyRight) { int[][][] offsets = { {{-1,-1}},{{-1,1}},{{-1,0}},{{-2,0}} }; }
+                    else if (blackEnemyLeft) { int[][][] offsets = { {{-1,-1}},{{-1,0}},{{-2,0}} }; }
+                    else if (blackEnemyRight) { int[][][] offsets = { {{-1,1}},{{-1,0}},{{-2,0}} }; }
+                    else { int[][][] offsets = { {{-1,0}},{{-2,0}} }; }
+                }
+                else {
+                    if (blackEnemyLeft && blackEnemyRight) {int[][][] offsets = {{{-1, -1}}, {{-1, 1}}, {{-1, 0}}};}
+                    else if (blackEnemyLeft) {int[][][] offsets = {{{-1, -1}}, {{-1, 0}}};}
+                    else if (blackEnemyRight) {int[][][] offsets = {{{-1, 1}}, {{-1, 0}}};}
+                    else {int[][][] offsets = {{{-1, 0}}};}
+                }
+            }
+            else {
+                if (myPosition.getRow() == 7) {canPromote = true;}
+                if (myPosition.getRow() == 2) {
+                    if (whiteEnemyLeft && whiteEnemyRight) { int[][][] offsets = { {{1,-1}},{{1,1}},{{1,0}},{{2,0}} }; }
+                    else if (whiteEnemyLeft) { int[][][] offsets = { {{1,-1}},{{1,0}},{{2,0}} }; }
+                    else if (whiteEnemyRight) { int[][][] offsets = { {{1,1}},{{1,0}},{{2,0}} }; }
+                    else { int[][][] offsets = { {{1,0}},{{2,0}} }; }
+                }
+                else {
+                    if (whiteEnemyLeft && whiteEnemyRight) { int[][][] offsets = { {{1,-1}},{{1,1}},{{1,0}} }; }
+                    else if (whiteEnemyLeft) { int[][][] offsets = { {{1,-1}},{{1,0}} }; }
+                    else if (whiteEnemyRight) { int[][][] offsets = { {{1,1}},{{1,0}} }; }
+                    else { int[][][] offsets = { {{1,0}} }; }
+                }
+            }
+
+            directionLoop:
+            for (int[][] direction : offsets) {
+                positionLoop:
+                for (int[] offset : direction) {
+                    ChessPosition target = myPosition.addOffset(offset[0], offset[1]);
+                    boolean canMove = board.isValidMove(target, getTeamColor())[0];
+                    boolean isCapture = board.isValidMove(target, getTeamColor())[1];
+
+                    if (canMove && isCapture) {
+                        moves.add(new ChessMove(myPosition, target, null));
+                        continue directionLoop;
+                    }
+                    else if (canMove) {
+                        moves.add(new ChessMove(myPosition, target, null));
+                    }
+                    else {
+                        continue directionLoop;
+                    }
+                }
+            }
+            return moves;
+        }
+
         return List.of();
 
     }
