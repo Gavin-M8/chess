@@ -1,9 +1,6 @@
 package chess;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Represents a single chess piece
@@ -262,10 +259,10 @@ public class ChessPiece {
             if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
                 if (myPosition.getRow() == 2) {canPromote = true;}
                 if (myPosition.getRow() == 7) {
-                    if (blackEnemyLeft && blackEnemyRight) { offsets = new int[][][] { {{-1,-1}},{{-1,1}},{{-1,0}},{{-2,0}} }; }
-                    else if (blackEnemyLeft) { offsets = new int[][][] { {{-1,-1}},{{-1,0}},{{-2,0}} }; }
-                    else if (blackEnemyRight) { offsets = new int[][][] { {{-1,1}},{{-1,0}},{{-2,0}} }; }
-                    else { offsets = new int[][][] { {{-1,0}},{{-2,0}} }; }
+                    if (blackEnemyLeft && blackEnemyRight) { offsets = new int[][][] { {{-1,-1}},{{-1,1}},{{-1,0},{-2,0}} }; }
+                    else if (blackEnemyLeft) { offsets = new int[][][] { {{-1,-1}},{{-1,0},{-2,0}} }; }
+                    else if (blackEnemyRight) { offsets = new int[][][] { {{-1,1}},{{-1,0},{-2,0}} }; }
+                    else { offsets = new int[][][] { {{-1,0},{-2,0}} }; }
                 }
                 else {
                     if (blackEnemyLeft && blackEnemyRight) { offsets = new int[][][] {{{-1, -1}}, {{-1, 1}}, {{-1, 0}}};}
@@ -277,10 +274,10 @@ public class ChessPiece {
             else {
                 if (myPosition.getRow() == 7) {canPromote = true;}
                 if (myPosition.getRow() == 2) {
-                    if (whiteEnemyLeft && whiteEnemyRight) { offsets = new int[][][] { {{1,-1}},{{1,1}},{{1,0}},{{2,0}} }; }
-                    else if (whiteEnemyLeft) { offsets = new int[][][] { {{1,-1}},{{1,0}},{{2,0}} }; }
-                    else if (whiteEnemyRight) { offsets = new int[][][] { {{1,1}},{{1,0}},{{2,0}} }; }
-                    else { offsets = new int[][][] { {{1,0}},{{2,0}} }; }
+                    if (whiteEnemyLeft && whiteEnemyRight) { offsets = new int[][][] { {{1,-1}},{{1,1}},{{1,0},{2,0}} }; }
+                    else if (whiteEnemyLeft) { offsets = new int[][][] { {{1,-1}},{{1,0},{2,0}} }; }
+                    else if (whiteEnemyRight) { offsets = new int[][][] { {{1,1}},{{1,0},{2,0}} }; }
+                    else { offsets = new int[][][] { {{1,0},{2,0}} }; }
                 }
                 else {
                     if (whiteEnemyLeft && whiteEnemyRight) { offsets = new int[][][] { {{1,-1}},{{1,1}},{{1,0}} }; }
@@ -304,7 +301,7 @@ public class ChessPiece {
                         if (canMove && isCapture) {
 
                             for (int[] potentialOffset : potentiallyBlocked) {
-                                if (offset == potentialOffset) {
+                                if (Arrays.equals(offset,potentialOffset)) {
                                     continue directionLoop;
                                 }
                             }
@@ -329,7 +326,7 @@ public class ChessPiece {
                         if (canMove && isCapture) {
 
                             for (int[] potentialOffset : potentiallyBlocked) {
-                                if (offset == potentialOffset) {
+                                if (Arrays.equals(offset,potentialOffset)) {
                                     continue directionLoop;
                                 }
                             }
