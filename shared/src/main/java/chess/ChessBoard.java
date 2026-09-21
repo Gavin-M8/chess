@@ -137,22 +137,17 @@ private ChessPiece[][] board = new ChessPiece[8][8];
 
         // not valid if out of bounds -- canMove false, isCapture false
         if (outOfBounds) {
-            results[0] = false;
-            results[1] = false;
             return results;
         }
 
         // valid if empty -- canMove true, isCapture false
         else if (getPiece(target) == null) {
             results[0] = true;
-            results[1] = false;
             return results;
         }
 
         // not valid if same color piece is on target position -- canMove false, isCapture false
         else if (board[target.getRow() - 1][target.getColumn() - 1].getTeamColor().equals(color)) {
-            results[0] = false;
-            results[1] = false;
             return results;}
 
         // valid if capture -- canMove true, isCapture true
