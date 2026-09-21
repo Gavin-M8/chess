@@ -27,9 +27,7 @@ public class ChessPiece {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(pieceColor, type);
-    }
+    public int hashCode() {return Objects.hash(pieceColor, type);}
 
     @Override
     public String toString() {return "{" + pieceColor + " " + type + "}" ;}
@@ -49,14 +47,12 @@ public class ChessPiece {
     /**
      * @return Which team this chess piece belongs to
      */
-    public ChessGame.TeamColor getTeamColor() {
-        return pieceColor;
-    }
+    public ChessGame.TeamColor getTeamColor() {return pieceColor;}
 
     /**
      * @return which type of chess piece this piece is
      */
-    public PieceType getPieceType() { return type; }
+    public PieceType getPieceType() {return type;}
 
     /**
      * Calculates all the positions a chess piece can move to
@@ -178,7 +174,6 @@ public class ChessPiece {
                     }
                 }
             }
-          return moves;
         }
 
         else {
@@ -245,7 +240,7 @@ public class ChessPiece {
                     }
                 }
             }
-            return moves;
         }
+        return moves;
     }
 }

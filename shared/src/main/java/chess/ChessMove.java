@@ -23,16 +23,12 @@ public class ChessMove {
     /**
      * @return ChessPosition of starting location
      */
-    public ChessPosition getStartPosition() {
-        return startPosition;
-    }
+    public ChessPosition getStartPosition() {return startPosition;}
 
     /**
      * @return ChessPosition of ending location
      */
-    public ChessPosition getEndPosition() {
-        return endPosition;
-    }
+    public ChessPosition getEndPosition() {return endPosition;}
 
     /**
      * Gets the type of piece to promote a pawn to if pawn promotion is part of this
@@ -40,14 +36,10 @@ public class ChessMove {
      *
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
-    public ChessPiece.PieceType getPromotionPiece() {
-        return null;
-    }
+    public ChessPiece.PieceType getPromotionPiece() {return null;}
 
     @Override
-    public String toString() {
-        return "{" + startPosition + ", " + endPosition + ", " + promotionPiece + "}";
-    }
+    public String toString() {return "{" + startPosition + ", " + endPosition + ", " + promotionPiece + "}";}
 
     @Override
     public boolean equals(Object o) {
@@ -59,7 +51,5 @@ public class ChessMove {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(startPosition, endPosition, promotionPiece);
-    }
+    public int hashCode() {return Objects.hash(startPosition, endPosition, promotionPiece);}
 }
