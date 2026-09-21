@@ -1,5 +1,4 @@
 package chess;
-
 import java.util.*;
 
 /**
@@ -9,6 +8,14 @@ import java.util.*;
  * signature of the existing methods.
  */
 public class ChessPiece {
+
+    private ChessGame.TeamColor pieceColor;
+    private ChessPiece.PieceType type;
+
+    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+        this.pieceColor = pieceColor;
+        this.type = type;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -24,16 +31,9 @@ public class ChessPiece {
         return Objects.hash(pieceColor, type);
     }
 
-    private ChessGame.TeamColor pieceColor;
-    private ChessPiece.PieceType type;
-
-    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
-        this.pieceColor = pieceColor;
-        this.type = type;
-    }
-
     @Override
     public String toString() {return "{" + pieceColor + " " + type + "}" ;}
+
     /**
      * The various different chess piece options
      */
@@ -57,6 +57,7 @@ public class ChessPiece {
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() { return type; }
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -67,16 +68,19 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
         PieceType type = piece.getPieceType();
+        ChessGame.TeamColor color = piece.getTeamColor();
+        int myRow = myPosition.getRow();
+
         List<ChessMove> moves = new ArrayList<>();
         int[][][] offsets;
 
         if (type == PieceType.PAWN) {
-            // do special pawn stuff
             boolean canPromote = false;
             boolean blackEnemyLeft = ((myPosition.getColumn() > 1 && myPosition.getRow() > 1) && board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1)) != null) && (board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1)).getTeamColor() == ChessGame.TeamColor.WHITE);
             boolean blackEnemyRight = ((myPosition.getColumn() < 8 && myPosition.getRow() > 1) && board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1)) != null) && (board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1)).getTeamColor() == ChessGame.TeamColor.WHITE);
             boolean whiteEnemyLeft = ((myPosition.getColumn() > 1 && myPosition.getRow() < 8) && board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1)) != null) && (board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1)).getTeamColor() == ChessGame.TeamColor.BLACK);
             boolean whiteEnemyRight = ((myPosition.getColumn() < 8 && myPosition.getRow() < 8) && board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1)) != null) && (board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1)).getTeamColor() == ChessGame.TeamColor.BLACK);
+            int[][] potentiallyBlocked = new int[][]{{1, 0}, {-1, 0}, {2, 0}, {-2, 0}};
 
             if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
                 if (myPosition.getRow() == 2) {
@@ -130,11 +134,8 @@ public class ChessPiece {
                 }
             }
 
-            int[][] potentiallyBlocked = new int[][]{{1, 0}, {-1, 0}, {2, 0}, {-2, 0}};
-
             directionLoop:
             for (int[][] direction : offsets) {
-                positionLoop:
                 for (int[] offset : direction) {
                     ChessPosition target = myPosition.addOffset(offset[0], offset[1]);
                     boolean canMove = board.isValidMove(target, getTeamColor())[0];
@@ -142,13 +143,11 @@ public class ChessPiece {
 
                     if (canPromote) {
                         if (canMove && isCapture) {
-
                             for (int[] potentialOffset : potentiallyBlocked) {
                                 if (Arrays.equals(offset, potentialOffset)) {
                                     continue directionLoop;
                                 }
                             }
-
                             moves.add(new ChessMove(myPosition, target, PieceType.QUEEN));
                             moves.add(new ChessMove(myPosition, target, PieceType.BISHOP));
                             moves.add(new ChessMove(myPosition, target, PieceType.ROOK));
@@ -164,13 +163,11 @@ public class ChessPiece {
                         }
                     } else {
                         if (canMove && isCapture) {
-
                             for (int[] potentialOffset : potentiallyBlocked) {
                                 if (Arrays.equals(offset, potentialOffset)) {
                                     continue directionLoop;
                                 }
                             }
-
                             moves.add(new ChessMove(myPosition, target, null));
                             continue directionLoop;
                         } else if (canMove) {
@@ -181,70 +178,58 @@ public class ChessPiece {
                     }
                 }
             }
-            return moves;
-        } else {
-            // do normal piece stuff
+          return moves;
+        }
+
+        else {
             switch (type) {
-                case BISHOP:
-                    offsets = new int[][][]{
-                            {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}},
-                            {{-1, 1}, {-2, 2}, {-3, 3}, {-4, 4}, {-5, 5}, {-6, 6}, {-7, 7}},
-                            {{-1, -1}, {-2, -2}, {-3, -3}, {-4, -4}, {-5, -5}, {-6, -6}, {-7, -7}},
-                            {{1, -1}, {2, -2}, {3, -3}, {4, -4}, {5, -5}, {6, -6}, {7, -7}}
-                    };
-                    break;
-                case QUEEN:
-                    offsets = new int[][][]{
-                            {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 6}, {0, 7}},
-                            {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}},
-                            {{1, 0}, {2, 0}, {3, 0}, {4, 0}, {5, 0}, {6, 0}, {7, 0}},
-                            {{-1, 1}, {-2, 2}, {-3, 3}, {-4, 4}, {-5, 5}, {-6, 6}, {-7, 7}},
-                            {{-1, -1}, {-2, -2}, {-3, -3}, {-4, -4}, {-5, -5}, {-6, -6}, {-7, -7}},
-                            {{-1, 0}, {-2, 0}, {-3, 0}, {-4, 0}, {-5, 0}, {-6, 0}, {-7, 0}},
-                            {{0, -1}, {0, -2}, {0, -3}, {0, -4}, {0, -5}, {0, -6}, {0, -7}},
-                            {{1, -1}, {2, -2}, {3, -3}, {4, -4}, {5, -5}, {6, -6}, {7, -7}}
-                    };
-                    break;
-                case KING:
-                    offsets = new int[][][]{
-                            {{1, 1}},
-                            {{0, 1}},
-                            {{-1, 1}},
-                            {{-1, 0}},
-                            {{-1, -1}},
-                            {{0, -1}},
-                            {{1, -1}},
-                            {{1, 0}}
-                    };
-                    break;
-                case ROOK:
-                    offsets = new int[][][]{
-                            {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 6}, {0, 7}},
-                            {{1, 0}, {2, 0}, {3, 0}, {4, 0}, {5, 0}, {6, 0}, {7, 0}},
-                            {{-1, 0}, {-2, 0}, {-3, 0}, {-4, 0}, {-5, 0}, {-6, 0}, {-7, 0}},
-                            {{0, -1}, {0, -2}, {0, -3}, {0, -4}, {0, -5}, {0, -6}, {0, -7}},
-                    };
-                    break;
-                case KNIGHT:
-                    offsets = new int[][][]{
-                            {{2, 1}},
-                            {{2, -1}},
-                            {{1, 2}},
-                            {{1, -2}},
-                            {{-1, -2}},
-                            {{-1, 2}},
-                            {{-2, -1}},
-                            {{-2, 1}}
-                    };
-                    break;
-                case null, default:
-                    offsets = new int[][][]{{{}}};
-                    System.out.println("No piece to move --- defaulted to no moves.");
-                    break;
+                case BISHOP -> offsets = new int[][][]{
+                        {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}},
+                        {{-1, 1}, {-2, 2}, {-3, 3}, {-4, 4}, {-5, 5}, {-6, 6}, {-7, 7}},
+                        {{-1, -1}, {-2, -2}, {-3, -3}, {-4, -4}, {-5, -5}, {-6, -6}, {-7, -7}},
+                        {{1, -1}, {2, -2}, {3, -3}, {4, -4}, {5, -5}, {6, -6}, {7, -7}}
+                };
+                case QUEEN -> offsets = new int[][][]{
+                        {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 6}, {0, 7}},
+                        {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}},
+                        {{1, 0}, {2, 0}, {3, 0}, {4, 0}, {5, 0}, {6, 0}, {7, 0}},
+                        {{-1, 1}, {-2, 2}, {-3, 3}, {-4, 4}, {-5, 5}, {-6, 6}, {-7, 7}},
+                        {{-1, -1}, {-2, -2}, {-3, -3}, {-4, -4}, {-5, -5}, {-6, -6}, {-7, -7}},
+                        {{-1, 0}, {-2, 0}, {-3, 0}, {-4, 0}, {-5, 0}, {-6, 0}, {-7, 0}},
+                        {{0, -1}, {0, -2}, {0, -3}, {0, -4}, {0, -5}, {0, -6}, {0, -7}},
+                        {{1, -1}, {2, -2}, {3, -3}, {4, -4}, {5, -5}, {6, -6}, {7, -7}}
+                };
+                case KING -> offsets = new int[][][]{
+                        {{1, 1}},
+                        {{0, 1}},
+                        {{-1, 1}},
+                        {{-1, 0}},
+                        {{-1, -1}},
+                        {{0, -1}},
+                        {{1, -1}},
+                        {{1, 0}}
+                };
+                case ROOK -> offsets = new int[][][]{
+                        {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 6}, {0, 7}},
+                        {{1, 0}, {2, 0}, {3, 0}, {4, 0}, {5, 0}, {6, 0}, {7, 0}},
+                        {{-1, 0}, {-2, 0}, {-3, 0}, {-4, 0}, {-5, 0}, {-6, 0}, {-7, 0}},
+                        {{0, -1}, {0, -2}, {0, -3}, {0, -4}, {0, -5}, {0, -6}, {0, -7}},
+                };
+                case KNIGHT -> offsets = new int[][][]{
+                        {{2, 1}},
+                        {{2, -1}},
+                        {{1, 2}},
+                        {{1, -2}},
+                        {{-1, -2}},
+                        {{-1, 2}},
+                        {{-2, -1}},
+                        {{-2, 1}}
+                };
+                case null, default -> offsets = new int[][][]{{{}}};
             }
+
             directionLoop:
             for (int[][] direction : offsets) {
-                positionLoop:
                 for (int[] offset : direction) {
                     ChessPosition target = myPosition.addOffset(offset[0], offset[1]);
                     boolean canMove = board.isValidMove(target, getTeamColor())[0];
