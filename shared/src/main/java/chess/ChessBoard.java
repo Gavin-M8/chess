@@ -10,7 +10,7 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessBoard {
-private ChessPiece[][] board = new ChessPiece[8][8];
+private final ChessPiece[][] board = new ChessPiece[8][8];
     public ChessBoard() {}
 
     /**
@@ -97,7 +97,7 @@ private ChessPiece[][] board = new ChessPiece[8][8];
         for (ChessPiece[] row : flippedBoard){
             for (ChessPiece piece : row) {
                 if (piece != null) {
-                    System.out.print("| " + piece.toString() + " |");
+                    System.out.print("| " + piece + " |");
                 }
                 else {
                     System.out.print("| null |");
