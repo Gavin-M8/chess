@@ -24,7 +24,7 @@ public class ChessGame {
         return Objects.hash(teamTurn, board);
     }
 
-    private TeamColor teamTurn;
+    private TeamColor teamTurn = TeamColor.WHITE;
     private ChessBoard board = new ChessBoard();
 
     public ChessGame() {
@@ -47,6 +47,7 @@ public class ChessGame {
 
     @Override
     public String toString() {
+        board.printBoard();
         return "ChessGame{}";
     }
 
