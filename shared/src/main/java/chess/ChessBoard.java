@@ -24,6 +24,15 @@ private final ChessPiece[][] board = new ChessPiece[8][8];
     }
 
     /**
+     * Removes a chess piece from the chessboard
+     *
+     * @param position where to remove a piece from
+     */
+    public void removePiece(ChessPosition position) {
+        board[position.getRow() - 1][position.getColumn() - 1] = null;
+    }
+
+    /**
      * Gets a chess piece on the chessboard
      *
      * @param position The position to get the piece from
