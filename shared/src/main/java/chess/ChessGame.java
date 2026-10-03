@@ -71,7 +71,6 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         Collection<ChessMove> moves = new ArrayList<>();
-
         ChessPiece piece = board.getPiece(startPosition);
 
         if (piece == null) {return moves;}
@@ -230,19 +229,29 @@ public class ChessGame {
                                 board.addPiece(endPos, piece);
 
                                 if (!isInCheck(teamColor)) {
+                                    board.addPiece(endPos, oldPiece);
+                                    board.addPiece(position, piece);
                                     return false;
                                 }
-                                board.addPiece(endPos, oldPiece);
-                                board.addPiece(position, piece);
+                                else {
+                                    board.addPiece(endPos, oldPiece);
+                                    board.addPiece(position, piece);
+                                }
+
                             }
                             else {
                                 board.removePiece(position);
                                 board.addPiece(endPos, piece);
                                 if (!isInCheck(teamColor)) {
+                                    board.removePiece(endPos);
+                                    board.addPiece(position, piece);
                                     return false;
                                 }
-                                board.removePiece(endPos);
-                                board.addPiece(position, piece);
+                                else {
+                                    board.removePiece(endPos);
+                                    board.addPiece(position, piece);
+                                }
+
                             }
                         }
                     }
@@ -284,19 +293,29 @@ public class ChessGame {
                                 board.addPiece(endPos, piece);
 
                                 if (!isInCheck(teamColor)) {
+                                    board.addPiece(endPos, oldPiece);
+                                    board.addPiece(position, piece);
                                     return false;
                                 }
-                                board.addPiece(endPos, oldPiece);
-                                board.addPiece(position, piece);
+                                else {
+                                    board.addPiece(endPos, oldPiece);
+                                    board.addPiece(position, piece);
+                                }
+
                             }
                             else {
                                 board.removePiece(position);
                                 board.addPiece(endPos, piece);
                                 if (!isInCheck(teamColor)) {
+                                    board.removePiece(endPos);
+                                    board.addPiece(position, piece);
                                     return false;
                                 }
-                                board.removePiece(endPos);
-                                board.addPiece(position, piece);
+                                else {
+                                    board.removePiece(endPos);
+                                    board.addPiece(position, piece);
+                                }
+
                             }
                         }
                     }
