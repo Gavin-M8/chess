@@ -178,7 +178,49 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (!isInCheck(teamColor)) {
+            int[] rows = new int[] {1,2,3,4,5,6,7,8};
+            int[] cols = new int[] {1,2,3,4,5,6,7,8};
+
+            for (int row : rows) {
+                for (int col : cols) {
+                    ChessPosition position = new ChessPosition(row,col);
+                    ChessPiece piece = board.getPiece(position);
+
+                    if (piece != null && piece.getTeamColor() == teamColor) {
+                        Collection<ChessMove> potentialMoves = piece.pieceMoves(board, position);
+
+                        for (ChessMove move : potentialMoves) {
+                            ChessPosition endPos = move.getEndPosition();
+                            if (board.getPiece(endPos) != null) {
+                                ChessPiece oldPiece = board.getPiece(endPos);
+                                board.removePiece(position);
+                                board.addPiece(endPos, piece);
+
+                                if (!isInCheck(teamColor)) {
+                                    return false;
+                                }
+                                board.addPiece(endPos, oldPiece);
+                                board.addPiece(position, piece);
+                            }
+                            else {
+                                board.removePiece(position);
+                                board.addPiece(endPos, piece);
+                                if (!isInCheck(teamColor)) {
+                                    return false;
+                                }
+                                board.removePiece(endPos);
+                                board.addPiece(position, piece);
+                            }
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     /**
