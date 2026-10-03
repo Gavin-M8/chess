@@ -10,6 +10,15 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessGame {
+
+    private TeamColor teamTurn = TeamColor.WHITE;
+    private ChessBoard board = new ChessBoard();
+
+    public ChessGame() {
+        board.resetBoard();
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
@@ -24,11 +33,10 @@ public class ChessGame {
         return Objects.hash(teamTurn, board);
     }
 
-    private TeamColor teamTurn = TeamColor.WHITE;
-    private ChessBoard board = new ChessBoard();
-
-    public ChessGame() {
-        board.resetBoard();
+    @Override
+    public String toString() {
+        board.printBoard();
+        return "ChessGame{}";
     }
 
     /**
@@ -44,12 +52,6 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {teamTurn = team;}
-
-    @Override
-    public String toString() {
-        board.printBoard();
-        return "ChessGame{}";
-    }
 
     /**
      * Enum identifying the 2 possible teams in a chess game
@@ -87,7 +89,28 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        int[] rows = new int[] {1,2,3,4,5,6,7,8};
+        int[] cols = new int[] {1,2,3,4,5,6,7,8};
+
+        for (int row : rows) {
+            for (int col : cols) {
+                ChessPosition position = new ChessPosition(row,col);
+                ChessPiece piece = board.getPiece(position);
+                if (piece != null && piece.getTeamColor() != teamColor) {
+                    Collection<ChessMove> potentialMoves = piece.pieceMoves(board, position);
+                    for (ChessMove move : potentialMoves) {
+                        ChessPosition endPos = move.getEndPosition();
+                        if (board.getPiece(endPos) != null) {
+                            if (board.getPiece(endPos).getPieceType().equals(ChessPiece.PieceType.KING)) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+        return false;
     }
 
     /**
