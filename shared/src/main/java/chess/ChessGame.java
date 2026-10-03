@@ -75,6 +75,7 @@ public class ChessGame {
 
         if (piece == null) {return moves;}
 
+        TeamColor color = piece.getTeamColor();
         Collection<ChessMove> potentialMoves = piece.pieceMoves(board, startPosition);
 
         for (ChessMove move : potentialMoves) {
@@ -84,7 +85,7 @@ public class ChessGame {
                 board.removePiece(startPosition);
                 board.addPiece(endPos, piece);
 
-                if (!isInCheck(teamTurn) && !isInCheckmate(teamTurn) && !isInStalemate(teamTurn)) {
+                if (!isInCheck(color) && !isInCheckmate(color) && !isInStalemate(color)) {
                     moves.add(move);
                 }
 
@@ -95,7 +96,7 @@ public class ChessGame {
                 board.removePiece(startPosition);
                 board.addPiece(endPos, piece);
 
-                if (!isInCheck(teamTurn) && !isInCheckmate(teamTurn) && !isInStalemate(teamTurn)) {
+                if (!isInCheck(color) && !isInCheckmate(color) && !isInStalemate(color)) {
                     moves.add(move);
                 }
 
