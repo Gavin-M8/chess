@@ -127,6 +127,10 @@ public class ChessGame {
         if (piece == null) {throw new InvalidMoveException();}
 
         ChessPiece.PieceType type = piece.getPieceType();
+        TeamColor color = piece.getTeamColor();
+
+        if (color != teamTurn) {throw new InvalidMoveException();}
+
         ChessPiece.PieceType promotion = move.getPromotionPiece();
 
         if (promotion != null) {
