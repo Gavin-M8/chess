@@ -11,6 +11,10 @@ public class Server {
 
         // Register your endpoints and exception handlers here.
 
+        javalin.delete("/db", ctx -> ctx.result("{}"));
+        javalin.post("/user", ctx -> ctx.result("{}"));
+
+
     }
 
     public int run(int desiredPort) {
