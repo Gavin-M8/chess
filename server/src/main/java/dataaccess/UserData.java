@@ -4,11 +4,17 @@ public class UserData {
 
     private String username;
     private String email;
-    private String auth;
+    private String password;
 
-    UserData(String username, String email, String auth) {
+    UserData(String username, String email, String password) {
         this.username = username;
         this.email = email;
-        this.auth = auth;
+        this.password = password;
     }
+
+    public String getUsername() {return username;}
+
+    public String getEmail() {return email;}
+
+    public String getPassword() {return password;}
 }
