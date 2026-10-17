@@ -1,6 +1,7 @@
 package server;
 
 import chess.*;
+import dataaccess.MemoryDataAccess;
 
 public class ServerMain {
     public static void main(String[] args) {
@@ -9,5 +10,6 @@ public class ServerMain {
         server.run(port);
 
         System.out.println("♕ 240 Chess Server running on port: " + port);
+
     }
 }
