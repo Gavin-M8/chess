@@ -18,7 +18,8 @@ public class MemoryDataAccess {
         users.clear();
     }
 
-    public void register(UserData user) {
+    public void register(String username, String password, String email) {
+        var user = new UserData(username, password, email);
         users.put(user.getUsername(), user);
         AuthData token = new AuthData(UUID.randomUUID().toString());
         authtokens.put(user.getUsername(), token);
