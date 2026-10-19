@@ -2,9 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import dataaccess.AuthData;
 import dataaccess.MemoryDataAccess;
-import dataaccess.UserData;
 import io.javalin.*;
 import io.javalin.http.BadRequestResponse;
 
@@ -36,8 +34,8 @@ public class Server {
                 throw new BadRequestResponse("Error: bad request");
             }
             da.register(req.username(), req.password(), req.email());
-            AuthData token = da.getToken(req.username());
-            ResponseObject.RegisterResponse response = new ResponseObject.RegisterResponse(req.username(), token.getAuthtoken(), null);
+            String token = da.getToken(req.username()).getAuthtoken();
+            ResponseObject.RegisterResponse response = new ResponseObject.RegisterResponse(req.username(), token, null);
 
             ctx.status(200).contentType("application/json").result(gson.toJson(response));
         });
