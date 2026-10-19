@@ -6,6 +6,8 @@ import dataaccess.MemoryDataAccess;
 import io.javalin.*;
 import io.javalin.http.BadRequestResponse;
 
+import java.util.ArrayList;
+
 public class Server {
 
     private final Javalin javalin;
@@ -42,7 +44,30 @@ public class Server {
 
 
         // login /session POST
-        javalin.post("/session", ctx -> ctx.result("{}"));
+        javalin.post("/session", ctx -> {
+            RequestObject.LoginRequest req;
+            try {
+                req = gson.fromJson(ctx.body(), RequestObject.LoginRequest.class);
+            }
+            catch (JsonSyntaxException exception) {
+                throw new BadRequestResponse("Error: bad request");
+            }
+            ArrayList<Object> result = da.login(req.username(), req.password());
+            boolean canLogin = (boolean) result.getFirst();
+            String message = (String) result.get(1);
+            if (!canLogin && message.equals("User not registered")) {
+                ResponseObject.LoginResponse response = new ResponseObject.LoginResponse(req.username(), null, message);
+                ctx.status(401).contentType("application/json").result(gson.toJson(response));
+            }
+            else if (!canLogin && message.equals("Password incorrect")) {
+                ResponseObject.LoginResponse response = new ResponseObject.LoginResponse(req.username(), null, message);
+                ctx.status(401).contentType("application/json").result(gson.toJson(response));
+            }
+            else {
+                ResponseObject.LoginResponse response = new ResponseObject.LoginResponse(req.username(), message, null);
+                ctx.status(200).contentType("application/json").result(gson.toJson(response));
+            }
+        });
 
         // logout /session DELETE
         javalin.delete("/session", ctx -> ctx.result("{}"));
