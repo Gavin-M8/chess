@@ -4,18 +4,18 @@ import java.util.Objects;
 
 public class AuthData {
 
-    private final String authtoken;
+    private final String authToken;
 
-    AuthData (String authtoken) {
-        this.authtoken = authtoken;
+    AuthData (String authToken) {
+        this.authToken = authToken;
     }
 
-    public String getAuthtoken() {return authtoken;}
+    public String getAuthToken() {return authToken;}
 
     @Override
     public String toString() {
         return "AuthData{" +
-                "authtoken='" + authtoken + '\'' +
+                "authToken='" + authToken + '\'' +
                 '}';
     }
 
@@ -25,11 +25,11 @@ public class AuthData {
             return false;
         }
         AuthData authData = (AuthData) o;
-        return Objects.equals(authtoken, authData.authtoken);
+        return Objects.equals(authToken, authData.authToken);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(authtoken);
+        return Objects.hashCode(authToken);
     }
 }

@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MemoryDataAccessTest {
 
@@ -48,5 +48,27 @@ public class MemoryDataAccessTest {
         assertEquals("Password incorrect", results.get(1));
 
     }
+
+    @Test
+    void logoutSuccess() {
+        var user = new UserData("billy bob", "billyb@gmail.com", "billyb123");
+        var da = new MemoryDataAccess();
+        da.register(user.getUsername(), user.getPassword(), user.getEmail());
+        da.login(user.getUsername(), user.getPassword());
+        AuthData auth = da.getToken(user.getUsername());
+        boolean didLogout = da.logout(auth.getAuthToken());
+        assertTrue(didLogout);
+    }
+
+    @Test
+    void logoutFail() {
+        var user = new UserData("billy bob", "billyb@gmail.com", "billyb123");
+        var da = new MemoryDataAccess();
+        da.register(user.getUsername(), user.getPassword(), user.getEmail());
+        da.login(user.getUsername(), user.getPassword());
+        boolean didLogout = da.logout("thats-some-auth");
+        assertFalse(didLogout);
+    }
+
 
 }

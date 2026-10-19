@@ -36,7 +36,7 @@ public class Server {
                 throw new BadRequestResponse("Error: bad request");
             }
             da.register(req.username(), req.password(), req.email());
-            String token = da.getToken(req.username()).getAuthtoken();
+            String token = da.getToken(req.username()).getAuthToken();
             ResponseObject.RegisterResponse response = new ResponseObject.RegisterResponse(req.username(), token, null);
 
             ctx.status(200).contentType("application/json").result(gson.toJson(response));
@@ -70,7 +70,26 @@ public class Server {
         });
 
         // logout /session DELETE
-        javalin.delete("/session", ctx -> ctx.result("{}"));
+        javalin.delete("/session", ctx -> {
+            String auth = ctx.header("authorization");
+            if (auth == null) {
+                ResponseObject.LogoutResponse response = new ResponseObject.LogoutResponse("Unauthorized");
+                ctx.status(401).contentType("application/json").result(gson.toJson(response));
+            }
+            else {
+                boolean isAuthorized = da.logout(auth);
+                if (!isAuthorized) {
+                    ResponseObject.LogoutResponse response = new ResponseObject.LogoutResponse("Unauthorized");
+                    ctx.status(401).contentType("application/json").result(gson.toJson(response));
+                }
+                else {
+                    // success
+                    ResponseObject.LogoutResponse response = new ResponseObject.LogoutResponse(null);
+                    ctx.status(200).contentType("application/json").result(gson.toJson(response));
+                }
+            }
+
+        });
 
         // list games /game GET
         javalin.get("/game", ctx -> ctx.result("{}"));

@@ -41,10 +41,19 @@ public class MemoryDataAccess {
                 result.add(0, true);
                 AuthData token = new AuthData(UUID.randomUUID().toString());
                 authtokens.put(username, token);
-                result.add(1, token.getAuthtoken());
+                result.add(1, token.getAuthToken());
             }
         }
         return result;
+    }
+
+    public boolean logout(String authToken) {
+        AuthData potentialAuth = new AuthData(authToken);
+        boolean canLogout = authtokens.containsValue(potentialAuth);
+        if (canLogout) {
+            authtokens.values().removeIf(auth -> auth.equals(potentialAuth));
+        }
+        return canLogout;
     }
 
     public UserData getUser(String username) {
