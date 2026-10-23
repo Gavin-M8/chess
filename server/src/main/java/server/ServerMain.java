@@ -1,7 +1,6 @@
 package server;
 
 import chess.*;
-import dataaccess.MemoryDataAccess;
 
 public class ServerMain {
     public static void main(String[] args) {
