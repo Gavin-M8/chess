@@ -9,5 +9,5 @@ public interface RequestObject {
     record LogoutRequest() implements RequestObject {};
     record ListGameRequest() implements RequestObject {};
     record CreateGameRequest(String gameName) implements RequestObject {};
-    record JoinGameRequest(ChessGame.TeamColor playerColor, int gameID) implements RequestObject {};
+    record JoinGameRequest(ChessGame.TeamColor playerColor, Integer gameID) implements RequestObject {};
 }

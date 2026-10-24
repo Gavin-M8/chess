@@ -8,6 +8,7 @@ import io.javalin.http.BadRequestResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Server {
 
@@ -107,7 +108,7 @@ public class Server {
                 ctx.status(401).contentType("application/json").result(gson.toJson(response));
             }
             else {
-                ArrayList<HashMap<String, Object>> gamesList = da.listGames(auth);
+                ArrayList<Map<String, Object>> gamesList = da.listGames(auth);
                 if (gamesList != null && !gamesList.isEmpty()) {
                     ResponseObject.ListGamesResponse response = new ResponseObject.ListGamesResponse(gamesList, null);
                     ctx.status(200).contentType("application/json").result(gson.toJson(response));
@@ -130,12 +131,7 @@ public class Server {
             }
             else {
                 RequestObject.CreateGameRequest req;
-                try {
-                    req = gson.fromJson(ctx.body(), RequestObject.CreateGameRequest.class);
-                }
-                catch (JsonSyntaxException exception) {
-                    throw new BadRequestResponse("Error: bad request");
-                }
+                req = gson.fromJson(ctx.body(), RequestObject.CreateGameRequest.class);
 
                 ArrayList<Object> result = da.createGame(auth, req.gameName());
                 boolean isAuthorized = (boolean) result.getFirst();
@@ -155,7 +151,39 @@ public class Server {
         });
 
         // join game /game PUT
-        javalin.put("/game", ctx -> ctx.result("{}"));
+        javalin.put("/game", ctx -> {
+            String auth = ctx.header("authorization");
+            if (auth == null) {
+                ResponseObject.JoinGameResponse response = new ResponseObject.JoinGameResponse("Error: Unauthorized");
+                ctx.status(401).contentType("application/json").result(gson.toJson(response));
+            }
+            else {
+                RequestObject.JoinGameRequest req;
+                req = gson.fromJson(ctx.body(), RequestObject.JoinGameRequest.class);
+
+                ArrayList<Object> result = da.joinGame(req.playerColor(), req.gameID(), auth);
+                boolean canJoinGame = (boolean) result.getFirst();
+                String message = (String) result.getLast();
+
+                if (!canJoinGame && message.equals("Error: Bad request")) {
+                    ResponseObject.JoinGameResponse response = new ResponseObject.JoinGameResponse(message);
+                    ctx.status(400).contentType("application/json").result(gson.toJson(response));
+                }
+                else if (!canJoinGame && message.equals("Error: Unauthorized")) {
+                    ResponseObject.JoinGameResponse response = new ResponseObject.JoinGameResponse(message);
+                    ctx.status(401).contentType("application/json").result(gson.toJson(response));
+                }
+                else if (!canJoinGame && message.equals("Error: Already taken")) {
+                    ResponseObject.JoinGameResponse response = new ResponseObject.JoinGameResponse(message);
+                    ctx.status(403).contentType("application/json").result(gson.toJson(response));
+                }
+                else {
+                    ResponseObject.JoinGameResponse response = new ResponseObject.JoinGameResponse(message);
+                    ctx.status(200).contentType("application/json").result(gson.toJson(response));
+                }
+            }
+
+        });
 
 
     }

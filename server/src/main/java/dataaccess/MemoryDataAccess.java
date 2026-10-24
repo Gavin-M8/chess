@@ -1,9 +1,12 @@
 package dataaccess;
 
+import chess.ChessGame;
+
 import java.lang.reflect.Array;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class MemoryDataAccess {
@@ -75,11 +78,11 @@ public class MemoryDataAccess {
         return canLogout;
     }
 
-    public ArrayList<HashMap<String, Object>> listGames(String authToken) {
+    public ArrayList<Map<String, Object>> listGames(String authToken) {
         AuthData potentialAuth = new AuthData(authToken);
 
         if (isAuthorized(potentialAuth) && !games.isEmpty()) {
-            ArrayList<HashMap<String, Object>> gamesList = new ArrayList<>();
+            ArrayList<Map<String, Object>> gamesList = new ArrayList<>();
 
             for (GameData game : games.values()) {
                 gamesList.add(game.getGame());
@@ -120,11 +123,53 @@ public class MemoryDataAccess {
         return results;
     }
 
+    public ArrayList<Object> joinGame(ChessGame.TeamColor playerColor, Integer gameID, String authToken) {
+        ArrayList<Object> results = new ArrayList<>();
+        AuthData potentialAuth = new AuthData(authToken);
+
+        if (playerColor == null || gameID == null) {
+            results.addFirst(false);
+            results.addLast("Error: Bad request");
+        }
+        else if (!isAuthorized(potentialAuth)) {
+            results.addFirst(false);
+            results.addLast("Error: Unauthorized");
+        }
+        else if (colorTaken(playerColor, gameID)) {
+            results.addFirst(false);
+            results.addLast("Error: Already taken");
+        }
+        else {
+            results.addFirst(true);
+            results.addLast(null);
+
+        }
+
+        return results;
+    }
+
     private boolean userExists(String username) {
         return users.containsKey(username);
     }
+
     private boolean isAuthorized(AuthData auth) {
         return authtokens.containsValue(auth);
+    }
+
+    private boolean colorTaken(ChessGame.TeamColor playerColor, Integer gameID) {
+        for (GameData game : games.values()) {
+            if (playerColor == ChessGame.TeamColor.BLACK) {
+                if (game.getBlackUsername() != null) {
+                    return true;
+                }
+            }
+            else {
+                if (game.getWhiteUsername() != null) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public UserData getUser(String username) {
