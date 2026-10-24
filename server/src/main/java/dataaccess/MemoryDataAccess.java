@@ -184,19 +184,13 @@ public class MemoryDataAccess {
     }
 
     private boolean colorTaken(ChessGame.TeamColor playerColor, Integer gameID) {
-        for (GameData game : games.values()) {
-            if (playerColor == ChessGame.TeamColor.BLACK) {
-                if (game.getBlackUsername() != null) {
-                    return true;
-                }
-            }
-            else {
-                if (game.getWhiteUsername() != null) {
-                    return true;
-                }
-            }
+        GameData game = getGame(gameID);
+        if (playerColor == ChessGame.TeamColor.BLACK) {
+            return game.getBlackUsername() != null;
         }
-        return false;
+        else {
+            return game.getWhiteUsername() != null;
+        }
     }
 
     private GameData getGame(Integer gameID) {
