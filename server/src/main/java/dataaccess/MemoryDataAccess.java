@@ -1,5 +1,6 @@
 package dataaccess;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
@@ -30,12 +31,12 @@ public class MemoryDataAccess {
         ArrayList<Object> result = new ArrayList<>();
         if (!users.containsKey(username)) {
             result.add(0, false);
-            result.add(1, "User not registered");
+            result.add(1, "Error: User not registered");
         }
         else {
             if (!users.get(username).getPassword().equals(password)) {
                 result.add(0, false);
-                result.add(1, "Password incorrect");
+                result.add(1, "Error: Password incorrect");
             }
             else {
                 result.add(0, true);
@@ -54,6 +55,49 @@ public class MemoryDataAccess {
             authtokens.values().removeIf(auth -> auth.equals(potentialAuth));
         }
         return canLogout;
+    }
+
+    public ArrayList<HashMap<String, Object>> listGames(String authToken) {
+        AuthData potentialAuth = new AuthData(authToken);
+        boolean canListGames = authtokens.containsValue(potentialAuth);
+
+        if (canListGames && !games.isEmpty()) {
+            ArrayList<HashMap<String, Object>> gamesList = new ArrayList<>();
+
+            for (GameData game : games.values()) {
+                gamesList.add(game.getGame());
+            }
+
+            return gamesList;
+        }
+        else if (games.isEmpty()) {
+            return new ArrayList<>();
+        }
+        else {
+            return null;
+        }
+    }
+
+    public ArrayList<Object> createGame(String authToken, String gameName) {
+        ArrayList<Object> results = new ArrayList<>();
+        AuthData potentialAuth = new AuthData(authToken);
+        boolean canCreateGame = authtokens.containsValue(potentialAuth);
+
+        if (canCreateGame) {
+            SecureRandom secure = new SecureRandom();
+            int gameID = secure.nextInt(1000,10000);
+            results.addFirst(true);
+            results.addLast(gameID);
+
+            GameData newGame = new GameData(gameID, null, null, gameName);
+            games.put(gameName, newGame);
+        }
+        else {
+            results.addFirst(false);
+            results.addLast(null);
+        }
+
+        return results;
     }
 
     public UserData getUser(String username) {

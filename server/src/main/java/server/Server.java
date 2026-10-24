@@ -7,6 +7,7 @@ import io.javalin.*;
 import io.javalin.http.BadRequestResponse;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Server {
 
@@ -55,13 +56,13 @@ public class Server {
             ArrayList<Object> result = da.login(req.username(), req.password());
             boolean canLogin = (boolean) result.getFirst();
             String message = (String) result.get(1);
-            if (!canLogin && message.equals("User not registered")) {
-                ResponseObject.LoginResponse response = new ResponseObject.LoginResponse(req.username(), null, message);
-                ctx.status(401).contentType("application/json").result(gson.toJson(response));
+            if (!canLogin && message.equals("Error: User not registered")) {
+                ResponseObject.LoginResponse response = new ResponseObject.LoginResponse(null, null, message);
+                ctx.status(400).contentType("application/json").result(gson.toJson(response));
             }
-            else if (!canLogin && message.equals("Password incorrect")) {
-                ResponseObject.LoginResponse response = new ResponseObject.LoginResponse(req.username(), null, message);
-                ctx.status(401).contentType("application/json").result(gson.toJson(response));
+            else if (!canLogin && message.equals("Error: Password incorrect")) {
+                ResponseObject.LoginResponse response = new ResponseObject.LoginResponse(null, null, message);
+                ctx.status(400).contentType("application/json").result(gson.toJson(response));
             }
             else {
                 ResponseObject.LoginResponse response = new ResponseObject.LoginResponse(req.username(), message, null);
@@ -73,17 +74,16 @@ public class Server {
         javalin.delete("/session", ctx -> {
             String auth = ctx.header("authorization");
             if (auth == null) {
-                ResponseObject.LogoutResponse response = new ResponseObject.LogoutResponse("Unauthorized");
+                ResponseObject.LogoutResponse response = new ResponseObject.LogoutResponse("Error: Unauthorized");
                 ctx.status(401).contentType("application/json").result(gson.toJson(response));
             }
             else {
                 boolean isAuthorized = da.logout(auth);
                 if (!isAuthorized) {
-                    ResponseObject.LogoutResponse response = new ResponseObject.LogoutResponse("Unauthorized");
+                    ResponseObject.LogoutResponse response = new ResponseObject.LogoutResponse("Error: Unauthorized");
                     ctx.status(401).contentType("application/json").result(gson.toJson(response));
                 }
                 else {
-                    // success
                     ResponseObject.LogoutResponse response = new ResponseObject.LogoutResponse(null);
                     ctx.status(200).contentType("application/json").result(gson.toJson(response));
                 }
@@ -92,10 +92,57 @@ public class Server {
         });
 
         // list games /game GET
-        javalin.get("/game", ctx -> ctx.result("{}"));
+        javalin.get("/game", ctx -> {
+            String auth = ctx.header("authorization");
+            if (auth == null) {
+                ResponseObject.ListGamesResponse response = new ResponseObject.ListGamesResponse(null, "Error: Unauthorized");
+                ctx.status(401).contentType("application/json").result(gson.toJson(response));
+            }
+            else {
+                ArrayList<HashMap<String, Object>> gamesList = da.listGames(auth);
+                if (gamesList != null && !gamesList.isEmpty()) {
+                    ResponseObject.ListGamesResponse response = new ResponseObject.ListGamesResponse(gamesList, null);
+                    ctx.status(200).contentType("application/json").result(gson.toJson(response));
+                } else if (gamesList != null) {
+                    ResponseObject.ListGamesResponse response = new ResponseObject.ListGamesResponse(gamesList, null);
+                    ctx.status(200).contentType("application/json").result(gson.toJson(response));
+                } else {
+                    ResponseObject.ListGamesResponse response = new ResponseObject.ListGamesResponse(null,"Error: Unauthorized");
+                    ctx.status(401).contentType("application/json").result(gson.toJson(response));
+                }
+            }
+        });
 
         // create game /game POST
-        javalin.post("/game", ctx -> ctx.result("{}"));
+        javalin.post("/game", ctx -> {
+            String auth = ctx.header("authorization");
+            if (auth == null) {
+                ResponseObject.CreateGameResponse response = new ResponseObject.CreateGameResponse(null, "Error: Unauthorized");
+                ctx.status(401).contentType("application/json").result(gson.toJson(response));
+            }
+            else {
+                RequestObject.CreateGameRequest req;
+                try {
+                    req = gson.fromJson(ctx.body(), RequestObject.CreateGameRequest.class);
+                }
+                catch (JsonSyntaxException exception) {
+                    throw new BadRequestResponse("Error: bad request");
+                }
+
+                ArrayList<Object> result = da.createGame(auth, req.gameName());
+                boolean isAuthorized = (boolean) result.getFirst();
+                Integer gameID = (Integer) result.getLast();
+
+                if (isAuthorized) {
+                    ResponseObject.CreateGameResponse response = new ResponseObject.CreateGameResponse(gameID, null);
+                    ctx.status(200).contentType("application/json").result(gson.toJson(response));
+                }
+                else {
+                    ResponseObject.CreateGameResponse response = new ResponseObject.CreateGameResponse(null,"Error: Unauthorized");
+                    ctx.status(401).contentType("application/json").result(gson.toJson(response));
+                }
+            }
+        });
 
         // join game /game PUT
         javalin.put("/game", ctx -> ctx.result("{}"));

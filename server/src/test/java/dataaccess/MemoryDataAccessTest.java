@@ -70,5 +70,31 @@ public class MemoryDataAccessTest {
         assertFalse(didLogout);
     }
 
+    @Test
+    void createGameSuccess() {
+        var user = new UserData("billy bob", "billyb@gmail.com", "billyb123");
+        var da = new MemoryDataAccess();
+        da.register(user.getUsername(), user.getPassword(), user.getEmail());
+        da.login(user.getUsername(), user.getPassword());
+        AuthData auth = da.getToken(user.getUsername());
+        ArrayList<Object> result = da.createGame(auth.getAuthToken(), "myGame");
+        boolean canCreateGame = (boolean) result.getFirst();
+        int gameID = (int) result.getLast();
+        assertTrue(canCreateGame);
+        assertTrue(1000 <= gameID && gameID < 10000);
+    }
+
+    @Test
+    void createGameFail() {
+        var user = new UserData("billy bob", "billyb@gmail.com", "billyb123");
+        var da = new MemoryDataAccess();
+        da.register(user.getUsername(), user.getPassword(), user.getEmail());
+        da.login(user.getUsername(), user.getPassword());
+        ArrayList<Object> result = da.createGame("fake auth", "myGame");
+        boolean canCreateGame = (boolean) result.getFirst();
+        assertFalse(canCreateGame);
+        assertNull(result.getLast());
+    }
+
 
 }
