@@ -30,39 +30,47 @@ public class Server {
         // register /user POST
         javalin.post("/user", ctx -> {
             RequestObject.RegisterRequest req;
-            try {
-                req = gson.fromJson(ctx.body(), RequestObject.RegisterRequest.class);
-            }
-            catch (JsonSyntaxException exception) {
-                throw new BadRequestResponse("Error: bad request");
-            }
-            da.register(req.username(), req.password(), req.email());
-            String token = da.getToken(req.username()).getAuthToken();
-            ResponseObject.RegisterResponse response = new ResponseObject.RegisterResponse(req.username(), token, null);
+            req = gson.fromJson(ctx.body(), RequestObject.RegisterRequest.class);
 
-            ctx.status(200).contentType("application/json").result(gson.toJson(response));
+            ArrayList<Object> results = da.register(req.username(), req.password(), req.email());
+            boolean canRegister = (boolean) results.getFirst();
+            String message = (String) results.getLast();
+            if (canRegister) {
+                ResponseObject.RegisterResponse response = new ResponseObject.RegisterResponse(req.username(), message, null);
+                ctx.status(200).contentType("application/json").result(gson.toJson(response));
+            }
+            else if (message.equals("Error: User already registered")){
+                ResponseObject.RegisterResponse response = new ResponseObject.RegisterResponse(null, null, message);
+                ctx.status(403).contentType("application/json").result(gson.toJson(response));
+            }
+            else {
+                ResponseObject.RegisterResponse response = new ResponseObject.RegisterResponse(null, null, message);
+                ctx.status(400).contentType("application/json").result(gson.toJson(response));
+            }
+
         });
 
 
         // login /session POST
         javalin.post("/session", ctx -> {
             RequestObject.LoginRequest req;
-            try {
-                req = gson.fromJson(ctx.body(), RequestObject.LoginRequest.class);
-            }
-            catch (JsonSyntaxException exception) {
-                throw new BadRequestResponse("Error: bad request");
-            }
+            req = gson.fromJson(ctx.body(), RequestObject.LoginRequest.class);
+
             ArrayList<Object> result = da.login(req.username(), req.password());
             boolean canLogin = (boolean) result.getFirst();
             String message = (String) result.get(1);
-            if (!canLogin && message.equals("Error: User not registered")) {
+
+            if (!canLogin && message.equals("Error: Bad request")) {
                 ResponseObject.LoginResponse response = new ResponseObject.LoginResponse(null, null, message);
                 ctx.status(400).contentType("application/json").result(gson.toJson(response));
             }
+            else if (!canLogin && message.equals("Error: User not registered")) {
+                ResponseObject.LoginResponse response = new ResponseObject.LoginResponse(null, null, message);
+                ctx.status(401).contentType("application/json").result(gson.toJson(response));
+            }
             else if (!canLogin && message.equals("Error: Password incorrect")) {
                 ResponseObject.LoginResponse response = new ResponseObject.LoginResponse(null, null, message);
-                ctx.status(400).contentType("application/json").result(gson.toJson(response));
+                ctx.status(401).contentType("application/json").result(gson.toJson(response));
             }
             else {
                 ResponseObject.LoginResponse response = new ResponseObject.LoginResponse(req.username(), message, null);
@@ -133,11 +141,13 @@ public class Server {
                 boolean isAuthorized = (boolean) result.getFirst();
                 Integer gameID = (Integer) result.getLast();
 
-                if (isAuthorized) {
+                if (isAuthorized && gameID != null) {
                     ResponseObject.CreateGameResponse response = new ResponseObject.CreateGameResponse(gameID, null);
                     ctx.status(200).contentType("application/json").result(gson.toJson(response));
-                }
-                else {
+                } else if (isAuthorized) {
+                    ResponseObject.CreateGameResponse response = new ResponseObject.CreateGameResponse(null, "Error: No game name");
+                    ctx.status(400).contentType("application/json").result(gson.toJson(response));
+                } else {
                     ResponseObject.CreateGameResponse response = new ResponseObject.CreateGameResponse(null,"Error: Unauthorized");
                     ctx.status(401).contentType("application/json").result(gson.toJson(response));
                 }

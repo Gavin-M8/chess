@@ -1,5 +1,6 @@
 package dataaccess;
 
+import java.lang.reflect.Array;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,37 +21,54 @@ public class MemoryDataAccess {
         users.clear();
     }
 
-    public void register(String username, String password, String email) {
-        var user = new UserData(username, password, email);
-        users.put(user.getUsername(), user);
-        AuthData token = new AuthData(UUID.randomUUID().toString());
-        authtokens.put(user.getUsername(), token);
+    public ArrayList<Object> register(String username, String password, String email) {
+        ArrayList<Object> results = new ArrayList<>();
+        if (username == null || password == null || email == null) {
+            results.addFirst(false);
+            results.addLast("Error: Bad Request");
+        }
+        else if (userExists(username)) {
+            results.addFirst(false);
+            results.addLast("Error: User already registered");
+        }
+        else {
+            var user = new UserData(username, password, email);
+            users.put(user.getUsername(), user);
+            AuthData token = new AuthData(UUID.randomUUID().toString());
+            authtokens.put(user.getUsername(), token);
+
+            results.addFirst(true);
+            results.addLast(token.getAuthToken());
+        }
+        return results;
     }
 
     public ArrayList<Object> login(String username, String password) {
         ArrayList<Object> result = new ArrayList<>();
-        if (!users.containsKey(username)) {
+        if (username == null || password == null) {
+            result.add(0, false);
+            result.add(1, "Error: Bad request");
+        }
+        else if (!userExists(username)) {
             result.add(0, false);
             result.add(1, "Error: User not registered");
         }
+        else if (!users.get(username).getPassword().equals(password)) {
+            result.add(0, false);
+            result.add(1, "Error: Password incorrect");
+        }
         else {
-            if (!users.get(username).getPassword().equals(password)) {
-                result.add(0, false);
-                result.add(1, "Error: Password incorrect");
-            }
-            else {
-                result.add(0, true);
-                AuthData token = new AuthData(UUID.randomUUID().toString());
-                authtokens.put(username, token);
-                result.add(1, token.getAuthToken());
-            }
+            result.addFirst(true);
+            AuthData token = new AuthData(UUID.randomUUID().toString());
+            authtokens.put(username, token);
+            result.add(1, token.getAuthToken());
         }
         return result;
     }
 
     public boolean logout(String authToken) {
         AuthData potentialAuth = new AuthData(authToken);
-        boolean canLogout = authtokens.containsValue(potentialAuth);
+        boolean canLogout = isAuthorized(potentialAuth);
         if (canLogout) {
             authtokens.values().removeIf(auth -> auth.equals(potentialAuth));
         }
@@ -59,9 +77,8 @@ public class MemoryDataAccess {
 
     public ArrayList<HashMap<String, Object>> listGames(String authToken) {
         AuthData potentialAuth = new AuthData(authToken);
-        boolean canListGames = authtokens.containsValue(potentialAuth);
 
-        if (canListGames && !games.isEmpty()) {
+        if (isAuthorized(potentialAuth) && !games.isEmpty()) {
             ArrayList<HashMap<String, Object>> gamesList = new ArrayList<>();
 
             for (GameData game : games.values()) {
@@ -81,9 +98,8 @@ public class MemoryDataAccess {
     public ArrayList<Object> createGame(String authToken, String gameName) {
         ArrayList<Object> results = new ArrayList<>();
         AuthData potentialAuth = new AuthData(authToken);
-        boolean canCreateGame = authtokens.containsValue(potentialAuth);
 
-        if (canCreateGame) {
+        if (isAuthorized(potentialAuth) && gameName != null) {
             SecureRandom secure = new SecureRandom();
             int gameID = secure.nextInt(1000,10000);
             results.addFirst(true);
@@ -92,12 +108,23 @@ public class MemoryDataAccess {
             GameData newGame = new GameData(gameID, null, null, gameName);
             games.put(gameName, newGame);
         }
+        else if (isAuthorized(potentialAuth)) {
+            results.addFirst(true);
+            results.addLast(null);
+        }
         else {
             results.addFirst(false);
             results.addLast(null);
         }
 
         return results;
+    }
+
+    private boolean userExists(String username) {
+        return users.containsKey(username);
+    }
+    private boolean isAuthorized(AuthData auth) {
+        return authtokens.containsValue(auth);
     }
 
     public UserData getUser(String username) {
