@@ -2,7 +2,6 @@ package dataaccess;
 
 import chess.ChessGame;
 
-import java.lang.reflect.Array;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -142,6 +141,14 @@ public class MemoryDataAccess {
         else {
             results.addFirst(true);
             results.addLast(null);
+            GameData game = getGame(gameID);
+            String username = getUsername(authToken);
+            if (playerColor == ChessGame.TeamColor.WHITE) {
+                game.setWhiteUsername(username);
+            }
+            else {
+                game.setBlackUsername(username);
+            }
 
         }
 
@@ -170,6 +177,27 @@ public class MemoryDataAccess {
             }
         }
         return false;
+    }
+
+    private GameData getGame(Integer gameID) {
+        for (GameData game : games.values()) {
+            if (game.getGameID() == gameID) {
+                return game;
+            }
+        }
+        return null;
+    }
+
+    private String getUsername(String authToken) {
+        AuthData auth = new AuthData(authToken);
+        for (var entry : authtokens.entrySet()) {
+            String username = entry.getKey();
+            AuthData authentication = entry.getValue();
+            if (authentication.equals(auth)) {
+                return username;
+            }
+        }
+        return null;
     }
 
     public UserData getUser(String username) {

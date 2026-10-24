@@ -38,17 +38,12 @@ public class GameData {
     }
 
     public Map<String, Object> getGame() {
-        String nullSafeWhiteUsername = "";
-        String nullSafeBlackUsername = "";
-        if (whiteUsername != null) {nullSafeWhiteUsername = whiteUsername;}
-        if (blackUsername != null) {nullSafeBlackUsername = blackUsername;}
-
-        return Map.of(
-                "gameID", gameID,
-                "whiteUsername", nullSafeWhiteUsername,
-                "blackUsername", nullSafeBlackUsername,
-                "gameName", gameName
-        );
+        Map<String, Object> map = new HashMap<>();
+                map.put("gameID", gameID);
+                map.put("whiteUsername", whiteUsername);
+                map.put("blackUsername", blackUsername);
+                map.put("gameName", gameName);
+        return map;
     }
 
     @Override
