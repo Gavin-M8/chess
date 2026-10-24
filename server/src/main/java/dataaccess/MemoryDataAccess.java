@@ -21,6 +21,8 @@ public class MemoryDataAccess {
 
     public void clear() {
         users.clear();
+        games.clear();
+        authtokens.clear();
     }
 
     public ArrayList<Object> register(String username, String password, String email) {
@@ -77,24 +79,31 @@ public class MemoryDataAccess {
         return canLogout;
     }
 
-    public ArrayList<Map<String, Object>> listGames(String authToken) {
+    public ArrayList<Object> listGames(String authToken) {
         AuthData potentialAuth = new AuthData(authToken);
+        ArrayList<Object> results = new ArrayList<>();
 
-        if (isAuthorized(potentialAuth) && !games.isEmpty()) {
+        if (!isAuthorized(potentialAuth)) {
+            results.addFirst(false);
+            ArrayList<Map<String, Object>> list = new ArrayList<>();
+            results.addLast(list);
+        }
+        else if (isAuthorized(potentialAuth) && !games.isEmpty()) {
             ArrayList<Map<String, Object>> gamesList = new ArrayList<>();
 
             for (GameData game : games.values()) {
                 gamesList.add(game.getGame());
             }
 
-            return gamesList;
-        }
-        else if (games.isEmpty()) {
-            return new ArrayList<>();
+            results.addFirst(true);
+            results.addLast(gamesList);
         }
         else {
-            return null;
+            ArrayList<Map<String, Object>> list = new ArrayList<>();
+            results.addFirst(true);
+            results.addLast(list);
         }
+        return results;
     }
 
     public ArrayList<Object> createGame(String authToken, String gameName) {

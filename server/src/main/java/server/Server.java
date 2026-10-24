@@ -108,16 +108,16 @@ public class Server {
                 ctx.status(401).contentType("application/json").result(gson.toJson(response));
             }
             else {
-                ArrayList<Map<String, Object>> gamesList = da.listGames(auth);
-                if (gamesList != null && !gamesList.isEmpty()) {
-                    ResponseObject.ListGamesResponse response = new ResponseObject.ListGamesResponse(gamesList, null);
-                    ctx.status(200).contentType("application/json").result(gson.toJson(response));
-                } else if (gamesList != null) {
-                    ResponseObject.ListGamesResponse response = new ResponseObject.ListGamesResponse(gamesList, null);
-                    ctx.status(200).contentType("application/json").result(gson.toJson(response));
-                } else {
+                ArrayList<Object> results = da.listGames(auth);
+                boolean canListGames = (boolean) results.getFirst();
+                if (!canListGames) {
                     ResponseObject.ListGamesResponse response = new ResponseObject.ListGamesResponse(null,"Error: Unauthorized");
                     ctx.status(401).contentType("application/json").result(gson.toJson(response));
+                }
+                else {
+                    ArrayList<Map<String, Object>> gamesList = (ArrayList<Map<String, Object>>) results.getLast();
+                    ResponseObject.ListGamesResponse response = new ResponseObject.ListGamesResponse(gamesList, null);
+                    ctx.status(200).contentType("application/json").result(gson.toJson(response));
                 }
             }
         });
