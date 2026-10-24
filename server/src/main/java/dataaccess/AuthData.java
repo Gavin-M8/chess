@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class AuthData {
 
-    private final String authToken;
+    private String authToken;
 
     AuthData (String authToken) {
         this.authToken = authToken;

@@ -55,8 +55,8 @@ public class MemoryDataAccessTest {
         var da = new MemoryDataAccess();
         da.register(user.getUsername(), user.getPassword(), user.getEmail());
         da.login(user.getUsername(), user.getPassword());
-        AuthData auth = da.getToken(user.getUsername());
-        boolean didLogout = da.logout(auth.getAuthToken());
+        ArrayList<AuthData> auth = da.getToken(user.getUsername());
+        boolean didLogout = da.logout(auth.getFirst().getAuthToken());
         assertTrue(didLogout);
     }
 
@@ -76,8 +76,8 @@ public class MemoryDataAccessTest {
         var da = new MemoryDataAccess();
         da.register(user.getUsername(), user.getPassword(), user.getEmail());
         da.login(user.getUsername(), user.getPassword());
-        AuthData auth = da.getToken(user.getUsername());
-        ArrayList<Object> result = da.createGame(auth.getAuthToken(), "myGame");
+        ArrayList<AuthData> auth = da.getToken(user.getUsername());
+        ArrayList<Object> result = da.createGame(auth.getFirst().getAuthToken(), "myGame");
         boolean canCreateGame = (boolean) result.getFirst();
         int gameID = (int) result.getLast();
         assertTrue(canCreateGame);

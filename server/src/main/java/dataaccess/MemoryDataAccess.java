@@ -11,7 +11,7 @@ import java.util.UUID;
 public class MemoryDataAccess {
     private HashMap<String, UserData> users;
     private HashMap<String, GameData> games;
-    private HashMap<String, AuthData> authtokens;
+    private HashMap<String, ArrayList<AuthData>> authtokens;
 
     public MemoryDataAccess() {
         this.users = new HashMap<>();
@@ -39,7 +39,9 @@ public class MemoryDataAccess {
             var user = new UserData(username, password, email);
             users.put(user.getUsername(), user);
             AuthData token = new AuthData(UUID.randomUUID().toString());
-            authtokens.put(user.getUsername(), token);
+            ArrayList<AuthData> tokens = new ArrayList<>();
+            tokens.add(token);
+            authtokens.put(user.getUsername(), tokens);
 
             results.addFirst(true);
             results.addLast(token.getAuthToken());
@@ -64,7 +66,7 @@ public class MemoryDataAccess {
         else {
             result.addFirst(true);
             AuthData token = new AuthData(UUID.randomUUID().toString());
-            authtokens.put(username, token);
+            authtokens.get(username).add(token);
             result.add(1, token.getAuthToken());
         }
         return result;
@@ -74,7 +76,9 @@ public class MemoryDataAccess {
         AuthData potentialAuth = new AuthData(authToken);
         boolean canLogout = isAuthorized(potentialAuth);
         if (canLogout) {
-            authtokens.values().removeIf(auth -> auth.equals(potentialAuth));
+            for (ArrayList<AuthData> authList : authtokens.values()) {
+                authList.removeIf(potentialAuth::equals);
+            }
         }
         return canLogout;
     }
@@ -110,7 +114,11 @@ public class MemoryDataAccess {
         ArrayList<Object> results = new ArrayList<>();
         AuthData potentialAuth = new AuthData(authToken);
 
-        if (isAuthorized(potentialAuth) && gameName != null) {
+        if (!isAuthorized(potentialAuth)) {
+            results.addFirst(false);
+            results.addLast(null);
+        }
+        else if (isAuthorized(potentialAuth) && gameName != null) {
             SecureRandom secure = new SecureRandom();
             int gameID = secure.nextInt(1000,10000);
             results.addFirst(true);
@@ -119,12 +127,8 @@ public class MemoryDataAccess {
             GameData newGame = new GameData(gameID, null, null, gameName);
             games.put(gameName, newGame);
         }
-        else if (isAuthorized(potentialAuth)) {
-            results.addFirst(true);
-            results.addLast(null);
-        }
         else {
-            results.addFirst(false);
+            results.addFirst(true);
             results.addLast(null);
         }
 
@@ -169,7 +173,14 @@ public class MemoryDataAccess {
     }
 
     private boolean isAuthorized(AuthData auth) {
-        return authtokens.containsValue(auth);
+        for (ArrayList<AuthData> authentications : authtokens.values()) {
+            for (AuthData token : authentications) {
+                if (token.equals(auth)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private boolean colorTaken(ChessGame.TeamColor playerColor, Integer gameID) {
@@ -201,9 +212,11 @@ public class MemoryDataAccess {
         AuthData auth = new AuthData(authToken);
         for (var entry : authtokens.entrySet()) {
             String username = entry.getKey();
-            AuthData authentication = entry.getValue();
-            if (authentication.equals(auth)) {
-                return username;
+            ArrayList<AuthData> authentication = entry.getValue();
+            for (AuthData token : authentication) {
+                if (token.equals(auth)) {
+                    return username;
+                }
             }
         }
         return null;
@@ -213,7 +226,7 @@ public class MemoryDataAccess {
         return users.getOrDefault(username, null);
     }
 
-    public AuthData getToken(String username) {
+    public ArrayList<AuthData> getToken(String username) {
         return authtokens.getOrDefault(username, null);
     }
 }
