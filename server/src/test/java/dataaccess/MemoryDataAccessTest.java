@@ -35,7 +35,7 @@ public class MemoryDataAccessTest {
         var da = new MemoryDataAccess();
         ArrayList<Object> results = da.login("jimbo", "secret-password");
         assertEquals(false, results.getFirst());
-        assertEquals("User not registered", results.get(1));
+        assertEquals("Error: User not registered", results.get(1));
     }
 
     @Test
@@ -45,7 +45,7 @@ public class MemoryDataAccessTest {
         da.register(user.getUsername(), user.getPassword(), user.getEmail());
         ArrayList<Object> results = da.login(user.getUsername(), "super-secret-password");
         assertEquals(false, results.getFirst());
-        assertEquals("Password incorrect", results.get(1));
+        assertEquals("Error: Password incorrect", results.get(1));
 
     }
 

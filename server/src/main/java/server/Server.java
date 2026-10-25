@@ -1,13 +1,10 @@
 package server;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import dataaccess.MemoryDataAccess;
 import io.javalin.*;
-import io.javalin.http.BadRequestResponse;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 public class Server {
