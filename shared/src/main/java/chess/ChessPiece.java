@@ -64,18 +64,29 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
         PieceType type = piece.getPieceType();
-        ChessGame.TeamColor color = piece.getTeamColor();
-        int myRow = myPosition.getRow();
 
         List<ChessMove> moves = new ArrayList<>();
         int[][][] offsets;
 
         if (type == PieceType.PAWN) {
+
             boolean canPromote = false;
-            boolean blackEnemyLeft = ((myPosition.getColumn() > 1 && myPosition.getRow() > 1) && board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1)) != null) && (board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1)).getTeamColor() == ChessGame.TeamColor.WHITE);
-            boolean blackEnemyRight = ((myPosition.getColumn() < 8 && myPosition.getRow() > 1) && board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1)) != null) && (board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1)).getTeamColor() == ChessGame.TeamColor.WHITE);
-            boolean whiteEnemyLeft = ((myPosition.getColumn() > 1 && myPosition.getRow() < 8) && board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1)) != null) && (board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1)).getTeamColor() == ChessGame.TeamColor.BLACK);
-            boolean whiteEnemyRight = ((myPosition.getColumn() < 8 && myPosition.getRow() < 8) && board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1)) != null) && (board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1)).getTeamColor() == ChessGame.TeamColor.BLACK);
+            boolean blackEnemyLeft = ((myPosition.getColumn() > 1 && myPosition.getRow() > 1) &&
+                    board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1)) != null) &&
+                    (board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1)).getTeamColor() == ChessGame.TeamColor.WHITE);
+
+            boolean blackEnemyRight = ((myPosition.getColumn() < 8 && myPosition.getRow() > 1) &&
+                    board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1)) != null) &&
+                    (board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1)).getTeamColor() == ChessGame.TeamColor.WHITE);
+
+            boolean whiteEnemyLeft = ((myPosition.getColumn() > 1 && myPosition.getRow() < 8) &&
+                    board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1)) != null) &&
+                    (board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1)).getTeamColor() == ChessGame.TeamColor.BLACK);
+
+            boolean whiteEnemyRight = ((myPosition.getColumn() < 8 && myPosition.getRow() < 8) &&
+                    board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1)) != null) &&
+                    (board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1)).getTeamColor() == ChessGame.TeamColor.BLACK);
+
             int[][] potentiallyBlocked = new int[][]{{1, 0}, {-1, 0}, {2, 0}, {-2, 0}};
 
             if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
