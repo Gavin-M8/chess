@@ -1,5 +1,7 @@
 package dataaccess;
 
+import model.AuthData;
+import model.UserData;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

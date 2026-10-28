@@ -1,4 +1,4 @@
-package dataaccess;
+package model;
 
 import chess.ChessGame;
 
@@ -13,7 +13,7 @@ public class GameData {
     private String whiteUsername;
     private String blackUsername;
 
-    GameData (int gameID, String whiteUsername, String blackUsername, String gameName) {
+    public GameData(int gameID, String whiteUsername, String blackUsername, String gameName) {
         this.game = new ChessGame();
         this.gameName = gameName;
         this.gameID = gameID;

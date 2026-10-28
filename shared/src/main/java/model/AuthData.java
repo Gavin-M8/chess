@@ -1,4 +1,4 @@
-package dataaccess;
+package model;
 
 import java.util.Objects;
 
@@ -6,7 +6,7 @@ public class AuthData {
 
     private String authToken;
 
-    AuthData (String authToken) {
+    public AuthData(String authToken) {
         this.authToken = authToken;
     }
 

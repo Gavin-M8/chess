@@ -1,5 +1,5 @@
 //package service;
-//import dataaccess.AuthData;
+//import model.AuthData;
 //import dataaccess.MemoryDataAccess;
 //
 //import java.util.ArrayList;

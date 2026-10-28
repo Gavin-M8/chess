@@ -1,8 +1,8 @@
 //package service;
 //
 //import chess.ChessGame;
-//import dataaccess.AuthData;
-//import dataaccess.GameData;
+//import model.AuthData;
+//import model.GameData;
 //
 //import java.security.SecureRandom;
 //import java.util.ArrayList;

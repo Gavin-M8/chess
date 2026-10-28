@@ -1,7 +1,7 @@
 //package service;
-//import dataaccess.AuthData;
+//import model.AuthData;
 //import dataaccess.MemoryDataAccess;
-//import dataaccess.UserData;
+//import model.UserData;
 //
 //import java.util.ArrayList;
 //import java.util.UUID;
