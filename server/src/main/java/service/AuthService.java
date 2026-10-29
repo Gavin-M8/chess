@@ -28,7 +28,7 @@ public class AuthService {
         else {
             result.addFirst(true);
             da.createAuth(username);
-            result.add(1, da.getToken(username).getLast());
+            result.add(1, da.getToken(username).getLast().getAuthToken());
         }
         return result;
     }

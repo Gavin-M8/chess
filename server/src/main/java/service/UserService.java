@@ -28,7 +28,7 @@ public class UserService {
         else {
             da.createUser(username, password, email);
             results.addFirst(true);
-            results.addLast(da.getToken(username).getLast());
+            results.addLast(da.getToken(username).getLast().getAuthToken());
         }
         return results;
     }
