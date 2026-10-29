@@ -7,7 +7,11 @@ import dataaccess.MemoryDataAccess2;
 
 public class GameService {
 
-    MemoryDataAccess2 da = new MemoryDataAccess2();
+    private MemoryDataAccess2 da;
+
+    public GameService(MemoryDataAccess2 da) {
+        this.da = da;
+    }
 
     public ArrayList<Object> listGames(String authToken) {
         ArrayList<Object> results = new ArrayList<>();

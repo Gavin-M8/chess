@@ -5,7 +5,11 @@ import java.util.ArrayList;
 
 public class AuthService {
 
-    MemoryDataAccess2 da = new MemoryDataAccess2();
+    private MemoryDataAccess2 da;
+
+    public AuthService(MemoryDataAccess2 da) {
+        this.da = da;
+    }
 
     public ArrayList<Object> login(String username, String password) {
         ArrayList<Object> result = new ArrayList<>();

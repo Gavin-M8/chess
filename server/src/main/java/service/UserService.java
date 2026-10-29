@@ -5,7 +5,11 @@ import java.util.ArrayList;
 
 public class UserService {
 
-    MemoryDataAccess2 da = new MemoryDataAccess2();
+    private MemoryDataAccess2 da;
+
+    public UserService(MemoryDataAccess2 da) {
+        this.da = da;
+    }
 
     public void clear() {
         da.clear();

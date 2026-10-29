@@ -1,26 +1,31 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.MemoryDataAccess;
 import io.javalin.*;
-
 import java.util.ArrayList;
 import java.util.Map;
+import service.AuthService;
+import service.GameService;
+import service.UserService;
+import dataaccess.MemoryDataAccess2;
 
 public class Server {
 
     private final Javalin javalin;
+    private MemoryDataAccess2 dao = new MemoryDataAccess2();
+    private UserService us = new UserService(dao);
+    private AuthService as = new AuthService(dao);
+    private GameService gs = new GameService(dao);
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
-        var da = new MemoryDataAccess();
         var gson = new Gson();
 
         // Register your endpoints and exception handlers here.
 
         // clear /db DELETE
         javalin.delete("/db", ctx -> {
-            da.clear();
+            us.clear();
             ResponseObject.ClearResponse response = new ResponseObject.ClearResponse(null);
             ctx.status(200).contentType("application/json").result(gson.toJson(response));
         });
@@ -30,7 +35,7 @@ public class Server {
             RequestObject.RegisterRequest req;
             req = gson.fromJson(ctx.body(), RequestObject.RegisterRequest.class);
 
-            ArrayList<Object> results = da.register(req.username(), req.password(), req.email());
+            ArrayList<Object> results = us.register(req.username(), req.password(), req.email());
             boolean canRegister = (boolean) results.getFirst();
             String message = (String) results.getLast();
             if (canRegister) {
@@ -54,7 +59,7 @@ public class Server {
             RequestObject.LoginRequest req;
             req = gson.fromJson(ctx.body(), RequestObject.LoginRequest.class);
 
-            ArrayList<Object> result = da.login(req.username(), req.password());
+            ArrayList<Object> result = as.login(req.username(), req.password());
             boolean canLogin = (boolean) result.getFirst();
             String message = (String) result.get(1);
 
@@ -84,7 +89,7 @@ public class Server {
                 ctx.status(401).contentType("application/json").result(gson.toJson(response));
             }
             else {
-                boolean isAuthorized = da.logout(auth);
+                boolean isAuthorized = as.logout(auth);
                 if (!isAuthorized) {
                     ResponseObject.LogoutResponse response = new ResponseObject.LogoutResponse("Error: Unauthorized");
                     ctx.status(401).contentType("application/json").result(gson.toJson(response));
@@ -105,7 +110,7 @@ public class Server {
                 ctx.status(401).contentType("application/json").result(gson.toJson(response));
             }
             else {
-                ArrayList<Object> results = da.listGames(auth);
+                ArrayList<Object> results = gs.listGames(auth);
                 boolean canListGames = (boolean) results.getFirst();
                 if (!canListGames) {
                     ResponseObject.ListGamesResponse response = new ResponseObject.ListGamesResponse(null,"Error: Unauthorized");
@@ -130,7 +135,7 @@ public class Server {
                 RequestObject.CreateGameRequest req;
                 req = gson.fromJson(ctx.body(), RequestObject.CreateGameRequest.class);
 
-                ArrayList<Object> result = da.createGame(auth, req.gameName());
+                ArrayList<Object> result = gs.createGame(auth, req.gameName());
                 boolean isAuthorized = (boolean) result.getFirst();
                 Integer gameID = (Integer) result.getLast();
 
@@ -158,7 +163,7 @@ public class Server {
                 RequestObject.JoinGameRequest req;
                 req = gson.fromJson(ctx.body(), RequestObject.JoinGameRequest.class);
 
-                ArrayList<Object> result = da.joinGame(req.playerColor(), req.gameID(), auth);
+                ArrayList<Object> result = gs.joinGame(req.playerColor(), req.gameID(), auth);
                 boolean canJoinGame = (boolean) result.getFirst();
                 String message = (String) result.getLast();
 
