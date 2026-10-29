@@ -6,11 +6,11 @@ public class AuthData {
 
     private String authToken;
 
-    public AuthData(String authToken) {
-        this.authToken = authToken;
-    }
+    public AuthData(String authToken) {this.authToken = authToken;}
 
-    public String getAuthToken() {return authToken;}
+    public String getAuthToken() {
+        return authToken;
+    }
 
     @Override
     public String toString() {
