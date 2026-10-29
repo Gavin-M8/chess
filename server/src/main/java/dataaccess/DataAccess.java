@@ -3,6 +3,7 @@ package dataaccess;
 import chess.ChessGame;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public interface DataAccess {
 
@@ -14,7 +15,7 @@ public interface DataAccess {
 
     // auth
     ArrayList<AuthData> getToken(String username);
-    boolean isAuthorized(AuthData auth);
+    boolean isAuthorized(String auth);
     void createAuth(String username);
     void deleteAuth(String authToken);
 
@@ -22,6 +23,9 @@ public interface DataAccess {
     GameData getGame(Integer gameID);
     Integer createGame(String gameName);
     boolean colorTaken(ChessGame.TeamColor playerColor, Integer gameID);
+    boolean gamesEmpty();
+    ArrayList<Map<String, Object>> getGamesList();
+    void joinGame(ChessGame.TeamColor playerColor, Integer gameID, String authToken);
 
     // clear data
     void clear();

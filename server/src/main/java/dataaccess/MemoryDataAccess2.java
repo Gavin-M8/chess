@@ -5,6 +5,7 @@ import chess.ChessGame;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 
@@ -56,7 +57,8 @@ public class MemoryDataAccess2 implements DataAccess{
         return authtokens.getOrDefault(username, null);
     }
 
-    public boolean isAuthorized(AuthData auth) {
+    public boolean isAuthorized(String potentialAuth) {
+        AuthData auth = new AuthData(potentialAuth);
         for (ArrayList<AuthData> authentications : authtokens.values()) {
             for (AuthData token : authentications) {
                 if (token.equals(auth)) {
@@ -104,6 +106,29 @@ public class MemoryDataAccess2 implements DataAccess{
         }
         else {
             return game.getWhiteUsername() != null;
+        }
+    }
+
+    public boolean gamesEmpty() {
+        return games.isEmpty();
+    }
+
+    public ArrayList<Map<String, Object>> getGamesList() {
+        ArrayList<Map<String, Object>> gamesList = new ArrayList<>();
+        for (GameData game : games.values()) {
+            gamesList.add(game.getGame());
+        }
+        return gamesList;
+    }
+
+    public void joinGame(ChessGame.TeamColor playerColor, Integer gameID, String authToken) {
+        GameData game = getGame(gameID);
+        String username = getUsername(authToken);
+        if (playerColor == ChessGame.TeamColor.WHITE) {
+            game.setWhiteUsername(username);
+        }
+        else {
+            game.setBlackUsername(username);
         }
     }
 

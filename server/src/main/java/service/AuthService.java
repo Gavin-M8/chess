@@ -1,9 +1,7 @@
 package service;
-import model.AuthData;
-import dataaccess.MemoryDataAccess2;
 
+import dataaccess.MemoryDataAccess2;
 import java.util.ArrayList;
-import java.util.UUID;
 
 public class AuthService {
 
@@ -15,30 +13,26 @@ public class AuthService {
             result.add(0, false);
             result.add(1, "Error: Bad request");
         }
-        else if (!userExists(username)) {
+        else if (!da.userExists(username)) {
             result.add(0, false);
             result.add(1, "Error: User not registered");
         }
-        else if (!users.get(username).getPassword().equals(password)) {
+        else if (!da.getUser(username).getPassword().equals(password)) {
             result.add(0, false);
             result.add(1, "Error: Password incorrect");
         }
         else {
             result.addFirst(true);
-            AuthData token = new AuthData(UUID.randomUUID().toString());
-            authtokens.get(username).add(token);
-            result.add(1, token.getAuthToken());
+            da.createAuth(username);
+            result.add(1, da.getToken(username).getLast());
         }
         return result;
     }
 
     public boolean logout(String authToken) {
-        AuthData potentialAuth = new AuthData(authToken);
-        boolean canLogout = isAuthorized(potentialAuth);
+        boolean canLogout = da.isAuthorized(authToken);
         if (canLogout) {
-            for (ArrayList<AuthData> authList : authtokens.values()) {
-                authList.removeIf(potentialAuth::equals);
-            }
+            da.deleteAuth(authToken);
         }
         return canLogout;
     }

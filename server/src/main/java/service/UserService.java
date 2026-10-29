@@ -1,40 +1,31 @@
-//package service;
-//import model.AuthData;
-//import dataaccess.MemoryDataAccess;
-//import model.UserData;
-//
-//import java.util.ArrayList;
-//import java.util.UUID;
-//
-//public class UserService {
-//
-//    public void clear() {
-//        users.clear();
-//        games.clear();
-//        authtokens.clear();
-//    }
-//
-//    public ArrayList<Object> register(String username, String password, String email) {
-//        ArrayList<Object> results = new ArrayList<>();
-//        if (username == null || password == null || email == null) {
-//            results.addFirst(false);
-//            results.addLast("Error: Bad Request");
-//        }
-//        else if (userExists(username)) {
-//            results.addFirst(false);
-//            results.addLast("Error: User already registered");
-//        }
-//        else {
-//            var user = new UserData(username, password, email);
-//            users.put(user.getUsername(), user);
-//            AuthData token = new AuthData(UUID.randomUUID().toString());
-//            ArrayList<AuthData> tokens = new ArrayList<>();
-//            tokens.add(token);
-//            authtokens.put(user.getUsername(), tokens);
-//
-//            results.addFirst(true);
-//            results.addLast(token.getAuthToken());
-//        }
-//        return results;
-//    }
-//}
+package service;
+
+import dataaccess.MemoryDataAccess2;
+import java.util.ArrayList;
+
+public class UserService {
+
+    MemoryDataAccess2 da = new MemoryDataAccess2();
+
+    public void clear() {
+        da.clear();
+    }
+
+    public ArrayList<Object> register(String username, String password, String email) {
+        ArrayList<Object> results = new ArrayList<>();
+        if (username == null || password == null || email == null) {
+            results.addFirst(false);
+            results.addLast("Error: Bad Request");
+        }
+        else if (da.userExists(username)) {
+            results.addFirst(false);
+            results.addLast("Error: User already registered");
+        }
+        else {
+            da.createUser(username, password, email);
+            results.addFirst(true);
+            results.addLast(da.getToken(username).getLast());
+        }
+        return results;
+    }
+}
