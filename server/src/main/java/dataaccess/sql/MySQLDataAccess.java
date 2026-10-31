@@ -1,15 +1,18 @@
 package dataaccess.sql;
 
 import chess.ChessGame;
-import dataaccess.AuthData;
-import dataaccess.DataAccess;
-import dataaccess.GameData;
-import dataaccess.UserData;
+import dataaccess.*;
 
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Map;
 
 public class MySQLDataAccess implements DataAccess {
+
+    MySQLDataAccess() throws DataAccessException {
+        configureDatabase();
+    }
+
     @Override
     public UserData getUser(String username) {
         return null;
@@ -83,5 +86,55 @@ public class MySQLDataAccess implements DataAccess {
     @Override
     public void clear() {
 
+    }
+
+    private final String[] createStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS  users (
+              `id` int NOT NULL AUTO_INCREMENT,
+              `username` varchar(256) NOT NULL,
+              `password` varchar(256) NOT NULL,
+              `email` varchar(256) NOT NULL,
+              PRIMARY KEY (`id`),
+              INDEX(username),
+              INDEX(password)
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS  auth (
+              `id` int NOT NULL AUTO_INCREMENT,
+              `username` varchar(256) NOT NULL,
+              `auth` varchar(256) NOT NULL,
+              PRIMARY KEY (`id`),
+              INDEX(username),
+              INDEX(auth)
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS  games (
+              `id` int NOT NULL AUTO_INCREMENT,
+              `gameName` varchar(256) NOT NULL,
+              `gameID` int NOT NULL,
+              'json' TEXT NOT NULL,
+              'whiteUsername' varchar(256) DEFAULT NULL,
+              'blackUsername' varchar(256) DEFAULT NULL,
+              PRIMARY KEY (`id`),
+              INDEX(gameName),
+              INDEX(gameID)
+            )
+            """
+    };
+
+    private void configureDatabase() throws DataAccessException {
+        DatabaseManager.createDatabase();
+        try (Connection conn = DatabaseManager.getConnection()) {
+            for (String statement : createStatements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: Could not configure database");
+        }
     }
 }
