@@ -8,7 +8,7 @@ import java.util.Map;
 public interface DataAccess {
 
     // user
-    UserData getUser(String username);
+    UserData getUser(String username) throws DataAccessException;
     String getUsername(String authToken);
     boolean userExists(String username);
     void createUser(String username, String password, String email);
@@ -28,7 +28,7 @@ public interface DataAccess {
     void joinGame(ChessGame.TeamColor playerColor, Integer gameID, String authToken);
 
     // clear data
-    void clear();
+    void clear() throws DataAccessException;
 
 
 }

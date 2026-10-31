@@ -1,11 +1,15 @@
 package dataaccess.sql;
 
 import chess.ChessGame;
+import com.google.gson.Gson;
 import dataaccess.*;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Map;
+
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
+import static java.sql.Types.NULL;
 
 public class MySQLDataAccess implements DataAccess {
 
@@ -14,7 +18,20 @@ public class MySQLDataAccess implements DataAccess {
     }
 
     @Override
-    public UserData getUser(String username) {
+    public UserData getUser(String username) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username, password, email FROM users WHERE username=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return new UserData(rs.getNString("username"), rs.getNString("password"), rs.getNString("email"));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Error: Unable to read data");
+        }
         return null;
     }
 
@@ -84,8 +101,41 @@ public class MySQLDataAccess implements DataAccess {
     }
 
     @Override
-    public void clear() {
+    public void clear() throws DataAccessException {
+        var statement = """
+                TRUNCATE TABLE users
+                TRUNCATE TABLE auth
+                TRUNCATE TABLE games
+                """;
+        executeUpdate(statement);
+    }
 
+    private int executeUpdate(String statement, Object... params) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+                for (int i = 0; i < params.length; i++) {
+                    Object param = params[i];
+                    switch (param) {
+                        case String p -> ps.setString(i + 1, p);
+                        case Integer p -> ps.setInt(i + 1, p);
+                        case ChessGame p -> ps.setString(i + 1, p.toString());
+                        case null -> ps.setNull(i + 1, NULL);
+                        default -> {
+                        }
+                    }
+                }
+                ps.executeUpdate();
+
+                ResultSet rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+
+                return 0;
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: Unable to update database entry");
+        }
     }
 
     private final String[] createStatements = {
