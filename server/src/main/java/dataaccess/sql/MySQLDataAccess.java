@@ -3,10 +3,13 @@ package dataaccess.sql;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.*;
+import org.mindrot.jbcrypt.BCrypt;
 
+import java.security.SecureRandom;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.UUID;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
@@ -36,69 +39,209 @@ public class MySQLDataAccess implements DataAccess {
     }
 
     @Override
-    public String getUsername(String authToken) {
-        return "";
-    }
-
-    @Override
-    public boolean userExists(String username) {
-        return false;
-    }
-
-    @Override
-    public void createUser(String username, String password, String email) {
-
-    }
-
-    @Override
-    public ArrayList<AuthData> getToken(String username) {
+    public String getUsername(String authToken) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username FROM auth WHERE auth=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, authToken);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getNString("username");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Error: Unable to read data");
+        }
         return null;
     }
 
     @Override
-    public boolean isAuthorized(String auth) {
+    public boolean userExists(String username) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username FROM users WHERE username=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Error: Unable to read data");
+        }
         return false;
     }
 
     @Override
-    public void createAuth(String username) {
+    public void createUser(String username, String password, String email) throws DataAccessException {
+        var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+        var hashedPassword = hashPassword(password);
+        executeUpdate(statement, username, hashedPassword, email);
+    }
+
+
+    @Override
+    public ArrayList<AuthData> getToken(String username) throws DataAccessException {
+        ArrayList<AuthData> result = new ArrayList<>();
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT auth FROM auth WHERE username=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        var json = rs.getString("auth");
+                        AuthData auth = new Gson().fromJson(json, AuthData.class);
+                        result.add(auth);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Error: Unable to read data");
+        }
+        return result;
 
     }
 
     @Override
-    public void deleteAuth(String authToken) {
-
+    public boolean isAuthorized(String auth) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT auth FROM auth WHERE auth=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, auth);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Error: Unable to read data");
+        }
+        return false;
     }
 
     @Override
-    public GameData getGame(Integer gameID) {
+    public void createAuth(String username) throws DataAccessException {
+        var statement = "INSERT INTO auth (username, auth) VALUES (?, ?)";
+        var auth = new AuthData(UUID.randomUUID().toString());
+        String json = new Gson().toJson(auth);
+        executeUpdate(statement, username, json);
+    }
+
+    @Override
+    public void deleteAuth(String authToken) throws DataAccessException {
+        var statement = "DELETE FROM auth WHERE auth=?";
+        var auth = new AuthData(authToken);
+        String json = new Gson().toJson(auth);
+        executeUpdate(statement, json);
+    }
+
+
+    @Override
+    public GameData getGame(Integer gameID) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT game FROM games WHERE gameID=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setInt(1, gameID);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        var json = rs.getString("game");
+                        GameData game = new Gson().fromJson(json, GameData.class);
+                        return game;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Error: Unable to read data");
+        }
         return null;
     }
 
     @Override
-    public Integer createGame(String gameName) {
-        return 0;
+    public Integer createGame(String gameName) throws DataAccessException {
+        SecureRandom secure = new SecureRandom();
+        var gameID = secure.nextInt(1000,10000);
+        GameData newGame = new GameData(gameID, null, null, gameName);
+
+        var statement = "INSERT INTO games (gameName, gameID, game) VALUES (?, ?, ?)";
+        String game = new Gson().toJson(newGame);
+        executeUpdate(statement, gameName, gameID, game);
+        return gameID;
     }
 
     @Override
-    public boolean colorTaken(ChessGame.TeamColor playerColor, Integer gameID) {
+    public boolean colorTaken(ChessGame.TeamColor playerColor, Integer gameID) throws DataAccessException {
+        String userColor;
+        if (playerColor == ChessGame.TeamColor.WHITE) userColor = "whiteUsername";
+        else userColor = "blackUsername";
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT ? FROM games WHERE gameID=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, userColor);
+                ps.setInt(2, gameID);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Error: Unable to read data");
+        }
         return false;
     }
 
     @Override
-    public boolean gamesEmpty() {
-        return false;
+    public boolean gamesEmpty() throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT game FROM games";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return false;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Error: Unable to read data");
+        }
+        return true;
     }
 
     @Override
-    public ArrayList<Map<String, Object>> getGamesList() {
-        return null;
+    public ArrayList<Map<String, Object>> getGamesList() throws DataAccessException {
+        ArrayList<Map<String, Object>> result = new ArrayList<>();
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT game FROM games";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        var json = rs.getString("game");
+                        GameData game = new Gson().fromJson(json, GameData.class);
+                        var gameMap = game.getGame();
+                        result.add(gameMap);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Error: Unable to read data");
+        }
+        return result;
     }
 
     @Override
-    public void joinGame(ChessGame.TeamColor playerColor, Integer gameID, String authToken) {
+    public void joinGame(ChessGame.TeamColor playerColor, Integer gameID, String authToken) throws DataAccessException {
+        String userColor;
+        if (playerColor == ChessGame.TeamColor.WHITE) userColor = "whiteUsername";
+        else userColor = "blackUsername";
 
+        var statement = "UPDATE games SET ?=? WHERE gameID=?";
+        String username = getUsername(authToken);
+        executeUpdate(statement, userColor, username, gameID);
     }
+
 
     @Override
     public void clear() throws DataAccessException {
@@ -108,6 +251,10 @@ public class MySQLDataAccess implements DataAccess {
                 TRUNCATE TABLE games
                 """;
         executeUpdate(statement);
+    }
+
+    private String hashPassword(String password) {
+       return BCrypt.hashpw(password, BCrypt.gensalt());
     }
 
     private int executeUpdate(String statement, Object... params) throws DataAccessException {
@@ -165,7 +312,7 @@ public class MySQLDataAccess implements DataAccess {
               `id` int NOT NULL AUTO_INCREMENT,
               `gameName` varchar(256) NOT NULL,
               `gameID` int NOT NULL,
-              'json' TEXT NOT NULL,
+              'game' TEXT NOT NULL,
               'whiteUsername' varchar(256) DEFAULT NULL,
               'blackUsername' varchar(256) DEFAULT NULL,
               PRIMARY KEY (`id`),

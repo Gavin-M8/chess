@@ -23,6 +23,8 @@ public class GameData {
 
     public String getGameName() {return gameName;}
 
+    public ChessGame getChessGame() {return game;}
+
     public int getGameID() {return gameID;}
 
     public String getBlackUsername() {return blackUsername;}
