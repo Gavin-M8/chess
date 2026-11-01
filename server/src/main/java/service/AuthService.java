@@ -1,17 +1,19 @@
 package service;
 
-import dataaccess.MemoryDataAccess2;
+import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
+
 import java.util.ArrayList;
 
 public class AuthService {
 
-    private MemoryDataAccess2 da;
+    private DataAccess da;
 
-    public AuthService(MemoryDataAccess2 da) {
+    public AuthService(DataAccess da) {
         this.da = da;
     }
 
-    public ArrayList<Object> login(String username, String password) {
+    public ArrayList<Object> login(String username, String password) throws DataAccessException {
         ArrayList<Object> result = new ArrayList<>();
         if (username == null || password == null) {
             result.add(0, false);
@@ -33,7 +35,7 @@ public class AuthService {
         return result;
     }
 
-    public boolean logout(String authToken) {
+    public boolean logout(String authToken) throws DataAccessException {
         boolean canLogout = da.isAuthorized(authToken);
         if (canLogout) {
             da.deleteAuth(authToken);

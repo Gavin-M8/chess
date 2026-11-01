@@ -3,17 +3,18 @@ package service;
 import chess.ChessGame;
 import java.util.ArrayList;
 import java.util.Map;
-import dataaccess.MemoryDataAccess2;
+import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
 
 public class GameService {
 
-    private MemoryDataAccess2 da;
+    private DataAccess da;
 
-    public GameService(MemoryDataAccess2 da) {
+    public GameService(DataAccess da) {
         this.da = da;
     }
 
-    public ArrayList<Object> listGames(String authToken) {
+    public ArrayList<Object> listGames(String authToken) throws DataAccessException {
         ArrayList<Object> results = new ArrayList<>();
 
         if (!da.isAuthorized(authToken)) {
@@ -33,7 +34,7 @@ public class GameService {
         return results;
     }
 
-    public ArrayList<Object> createGame(String authToken, String gameName) {
+    public ArrayList<Object> createGame(String authToken, String gameName) throws DataAccessException {
         ArrayList<Object> results = new ArrayList<>();
 
         if (!da.isAuthorized(authToken)) {
@@ -53,7 +54,7 @@ public class GameService {
         return results;
     }
 
-    public ArrayList<Object> joinGame(ChessGame.TeamColor playerColor, Integer gameID, String authToken) {
+    public ArrayList<Object> joinGame(ChessGame.TeamColor playerColor, Integer gameID, String authToken) throws DataAccessException {
         ArrayList<Object> results = new ArrayList<>();
 
         if (playerColor == null || gameID == null) {

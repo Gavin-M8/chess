@@ -1,21 +1,23 @@
 package service;
 
-import dataaccess.MemoryDataAccess2;
+import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
+
 import java.util.ArrayList;
 
 public class UserService {
 
-    private MemoryDataAccess2 da;
+    private DataAccess da;
 
-    public UserService(MemoryDataAccess2 da) {
+    public UserService(DataAccess da) {
         this.da = da;
     }
 
-    public void clear() {
+    public void clear() throws DataAccessException {
         da.clear();
     }
 
-    public ArrayList<Object> register(String username, String password, String email) {
+    public ArrayList<Object> register(String username, String password, String email) throws DataAccessException {
         ArrayList<Object> results = new ArrayList<>();
         if (username == null || password == null || email == null) {
             results.addFirst(false);
