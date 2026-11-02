@@ -18,6 +18,7 @@ public interface DataAccess {
     boolean isAuthorized(String auth) throws DataAccessException;
     void createAuth(String username) throws DataAccessException;
     void deleteAuth(String authToken) throws DataAccessException;
+    String hashPassword(String password);
 
     // game
     GameData getGame(Integer gameID) throws DataAccessException;

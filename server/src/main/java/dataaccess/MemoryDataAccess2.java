@@ -1,6 +1,7 @@
 package dataaccess;
 
 import chess.ChessGame;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -20,6 +21,9 @@ public class MemoryDataAccess2 implements DataAccess{
         this.authtokens = new HashMap<>();
     }
 
+    public String hashPassword(String password) {
+        return BCrypt.hashpw(password, BCrypt.gensalt());
+    }
 
     public UserData getUser(String username) {
         return users.getOrDefault(username, null);

@@ -14,68 +14,77 @@ public class GameService {
         this.da = da;
     }
 
-    public ArrayList<Object> listGames(String authToken) throws DataAccessException {
+    public ArrayList<Object> listGames(String authToken) {
         ArrayList<Object> results = new ArrayList<>();
-
-        if (!da.isAuthorized(authToken)) {
+        try {
+            if (!da.isAuthorized(authToken)) {
+                results.addFirst(false);
+                results.addLast("Error: not authorized");
+            }
+            else if (da.isAuthorized(authToken) && !da.gamesEmpty()) {
+                results.addFirst(true);
+                results.addLast(da.getGamesList());
+            }
+            else {
+                ArrayList<Map<String, Object>> list = new ArrayList<>();
+                results.addFirst(true);
+                results.addLast(list);
+            }
+            return results;
+        } catch (DataAccessException e) {
             results.addFirst(false);
-            ArrayList<Map<String, Object>> list = new ArrayList<>();
-            results.addLast(list);
+            results.addLast("Error: data access error");
+            return results;
         }
-        else if (da.isAuthorized(authToken) && !da.gamesEmpty()) {
-            results.addFirst(true);
-            results.addLast(da.getGamesList());
-        }
-        else {
-            ArrayList<Map<String, Object>> list = new ArrayList<>();
-            results.addFirst(true);
-            results.addLast(list);
-        }
-        return results;
     }
 
-    public ArrayList<Object> createGame(String authToken, String gameName) throws DataAccessException {
+    public ArrayList<Object> createGame(String authToken, String gameName) {
         ArrayList<Object> results = new ArrayList<>();
+        try {
+            if (!da.isAuthorized(authToken)) {
+                results.addFirst(false);
+                results.addLast(null);
+            } else if (da.isAuthorized(authToken) && gameName != null) {
+                Integer gameID = da.createGame(gameName);
+                results.addFirst(true);
+                results.addLast(gameID);
+            } else {
+                results.addFirst(true);
+                results.addLast(null);
+            }
 
-        if (!da.isAuthorized(authToken)) {
+            return results;
+        } catch (DataAccessException e) {
             results.addFirst(false);
-            results.addLast(null);
+            results.addLast("Error: data access exception");
+            return results;
         }
-        else if (da.isAuthorized(authToken) && gameName != null) {
-            Integer gameID = da.createGame(gameName);
-            results.addFirst(true);
-            results.addLast(gameID);
-        }
-        else {
-            results.addFirst(true);
-            results.addLast(null);
-        }
-
-        return results;
     }
 
-    public ArrayList<Object> joinGame(ChessGame.TeamColor playerColor, Integer gameID, String authToken) throws DataAccessException {
+    public ArrayList<Object> joinGame(ChessGame.TeamColor playerColor, Integer gameID, String authToken) {
         ArrayList<Object> results = new ArrayList<>();
+        try {
+            if (playerColor == null || gameID == null) {
+                results.addFirst(false);
+                results.addLast("Error: Bad request");
+            } else if (!da.isAuthorized(authToken)) {
+                results.addFirst(false);
+                results.addLast("Error: Unauthorized");
+            } else if (da.colorTaken(playerColor, gameID)) {
+                results.addFirst(false);
+                results.addLast("Error: Already taken");
+            } else {
+                da.joinGame(playerColor, gameID, authToken);
+                results.addFirst(true);
+                results.addLast(null);
+            }
 
-        if (playerColor == null || gameID == null) {
+            return results;
+        } catch (DataAccessException e) {
             results.addFirst(false);
-            results.addLast("Error: Bad request");
+            results.addLast("Error: data access error");
+            return results;
         }
-        else if (!da.isAuthorized(authToken)) {
-            results.addFirst(false);
-            results.addLast("Error: Unauthorized");
-        }
-        else if (da.colorTaken(playerColor, gameID)) {
-            results.addFirst(false);
-            results.addLast("Error: Already taken");
-        }
-        else {
-            da.joinGame(playerColor, gameID, authToken);
-            results.addFirst(true);
-            results.addLast(null);
-        }
-
-        return results;
     }
 
 

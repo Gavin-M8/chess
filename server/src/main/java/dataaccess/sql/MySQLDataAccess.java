@@ -16,9 +16,7 @@ import static java.sql.Types.NULL;
 
 public class MySQLDataAccess implements DataAccess {
 
-    MySQLDataAccess() throws DataAccessException {
-        configureDatabase();
-    }
+    public MySQLDataAccess() {}
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
@@ -28,7 +26,9 @@ public class MySQLDataAccess implements DataAccess {
                 ps.setString(1, username);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        return new UserData(rs.getNString("username"), rs.getNString("password"), rs.getNString("email"));
+                        String password = rs.getNString("password");
+                        String email = rs.getNString("email");
+                        return new UserData(username, password, email);
                     }
                 }
             }
@@ -39,11 +39,13 @@ public class MySQLDataAccess implements DataAccess {
     }
 
     @Override
-    public String getUsername(String authToken) throws DataAccessException {
+    public String getUsername(String auth) throws DataAccessException {
+        AuthData authToken = new AuthData(auth);
+        String json = new Gson().toJson(authToken);
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT username FROM auth WHERE auth=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                ps.setString(1, authToken);
+                ps.setString(1, json);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         return rs.getNString("username");
@@ -106,10 +108,12 @@ public class MySQLDataAccess implements DataAccess {
 
     @Override
     public boolean isAuthorized(String auth) throws DataAccessException {
+        AuthData authToken = new AuthData(auth);
+        String json = new Gson().toJson(authToken);
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT auth FROM auth WHERE auth=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                ps.setString(1, auth);
+                ps.setString(1, json);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         return true;
@@ -173,18 +177,14 @@ public class MySQLDataAccess implements DataAccess {
 
     @Override
     public boolean colorTaken(ChessGame.TeamColor playerColor, Integer gameID) throws DataAccessException {
-        String userColor;
-        if (playerColor == ChessGame.TeamColor.WHITE) userColor = "whiteUsername";
-        else userColor = "blackUsername";
+        String statement;
+        if (playerColor == ChessGame.TeamColor.WHITE) statement = "SELECT whiteUsername FROM games WHERE gameID=?";
+        else statement = "SELECT blackUsername FROM games WHERE gameID=?";
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT ? FROM games WHERE gameID=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                ps.setString(1, userColor);
-                ps.setInt(2, gameID);
+                ps.setInt(1, gameID);
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        return true;
-                    }
+                    if (rs.next() && rs.getObject(1) != null) {return true;}
                 }
             }
         } catch (Exception e) {
@@ -214,7 +214,7 @@ public class MySQLDataAccess implements DataAccess {
     public ArrayList<Map<String, Object>> getGamesList() throws DataAccessException {
         ArrayList<Map<String, Object>> result = new ArrayList<>();
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT game FROM games";
+            var statement = "SELECT * FROM games";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
@@ -233,27 +233,37 @@ public class MySQLDataAccess implements DataAccess {
 
     @Override
     public void joinGame(ChessGame.TeamColor playerColor, Integer gameID, String authToken) throws DataAccessException {
-        String userColor;
-        if (playerColor == ChessGame.TeamColor.WHITE) userColor = "whiteUsername";
-        else userColor = "blackUsername";
-
-        var statement = "UPDATE games SET ?=? WHERE gameID=?";
+        String statement;
+        GameData game = getGame(gameID);
         String username = getUsername(authToken);
-        executeUpdate(statement, userColor, username, gameID);
+
+        if (playerColor == ChessGame.TeamColor.WHITE) {
+            game.setWhiteUsername(username);
+            statement = "UPDATE games SET whiteUsername=?, game=? WHERE gameID=?";
+        }
+        else {
+            game.setBlackUsername(username);
+            statement = "UPDATE games SET blackUsername=?, game=? WHERE gameID=?";
+        }
+
+        String gameJson = new Gson().toJson(game);
+        executeUpdate(statement, username, gameJson, gameID);
     }
 
 
     @Override
     public void clear() throws DataAccessException {
-        var statement = """
-                TRUNCATE TABLE users
-                TRUNCATE TABLE auth
-                TRUNCATE TABLE games
-                """;
-        executeUpdate(statement);
+        ArrayList<String> statements = new ArrayList<>();
+        statements.add(0, "TRUNCATE TABLE users");
+        statements.add(1, "TRUNCATE TABLE auth");
+        statements.add(2, "TRUNCATE TABLE games");
+
+        for (String statement : statements) {
+            executeUpdate(statement);
+        }
     }
 
-    private String hashPassword(String password) {
+    public String hashPassword(String password) {
        return BCrypt.hashpw(password, BCrypt.gensalt());
     }
 
@@ -312,17 +322,17 @@ public class MySQLDataAccess implements DataAccess {
               `id` int NOT NULL AUTO_INCREMENT,
               `gameName` varchar(256) NOT NULL,
               `gameID` int NOT NULL,
-              'game' TEXT NOT NULL,
-              'whiteUsername' varchar(256) DEFAULT NULL,
-              'blackUsername' varchar(256) DEFAULT NULL,
+              `game` TEXT NOT NULL,
+              `whiteUsername` varchar(256) DEFAULT NULL,
+              `blackUsername` varchar(256) DEFAULT NULL,
               PRIMARY KEY (`id`),
               INDEX(gameName),
               INDEX(gameID)
             )
-            """
+            """,
     };
 
-    private void configureDatabase() throws DataAccessException {
+    public void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try (Connection conn = DatabaseManager.getConnection()) {
             for (String statement : createStatements) {
