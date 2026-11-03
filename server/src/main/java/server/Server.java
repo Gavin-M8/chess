@@ -23,15 +23,12 @@ public class Server {
         AuthService as = new AuthService(dao);
         GameService gs = new GameService(dao);
 
-        // clear /db DELETE
         javalin.delete("/db", ctx -> {
             if (!databaseAvailable) {ctx.status(500).contentType("application/json").result(gson.toJson("Error: Database unavailable"));}
             boolean didClear = us.clear();
             if (didClear) {ResponseUtilities.sendClearResponse(ctx, 200, null);}
-            else {ResponseUtilities.sendClearResponse(ctx, 500, "Error: Server error");}
-        });
+            else {ResponseUtilities.sendClearResponse(ctx, 500, "Error: Server error");}});
 
-        // register /user POST
         javalin.post("/user", ctx -> {
             if (!databaseAvailable) {ctx.status(500).contentType("application/json").result(gson.toJson("Error: Database unavailable"));}
             RequestObject.RegisterRequest req;
@@ -39,14 +36,11 @@ public class Server {
             ArrayList<Object> results = us.register(req.username(), req.password(), req.email());
             boolean canRegister = (boolean) results.getFirst();
             String message = (String) results.getLast();
-
             if (canRegister) {ResponseUtilities.sendRegisterResponse(ctx, 200, req.username(), message, null);}
             else if (message.equals("Error: data access error")) {ResponseUtilities.sendRegisterResponse(ctx, 500, null, null, "Error: Server error");}
             else if (message.equals("Error: User already registered")){ResponseUtilities.sendRegisterResponse(ctx, 403, null, null, message);}
-            else {ResponseUtilities.sendRegisterResponse(ctx, 400, null, null, message);}
-        });
+            else {ResponseUtilities.sendRegisterResponse(ctx, 400, null, null, message);}});
 
-        // login /session POST
         javalin.post("/session", ctx -> {
             if (!databaseAvailable) {ctx.status(500).contentType("application/json").result(gson.toJson("Error: Database unavailable"));}
             RequestObject.LoginRequest req;
@@ -54,15 +48,12 @@ public class Server {
             ArrayList<Object> result = as.login(req.username(), req.password());
             boolean canLogin = (boolean) result.getFirst();
             String message = (String) result.get(1);
-
             if (!canLogin && message.equals("Error: Bad request")) {ResponseUtilities.sendLoginResponse(ctx, 400, null, null, message);}
             else if (!canLogin && message.equals("Error: Data access error")) {ResponseUtilities.sendLoginResponse(ctx, 500, null, null, message);}
             else if (!canLogin && message.equals("Error: User not registered")) {ResponseUtilities.sendLoginResponse(ctx, 401, null, null, message);}
             else if (!canLogin && message.equals("Error: Password incorrect")) {ResponseUtilities.sendLoginResponse(ctx, 401, null, null, message);}
-            else {ResponseUtilities.sendLoginResponse(ctx, 200, req.username(), message, null);}
-        });
+            else {ResponseUtilities.sendLoginResponse(ctx, 200, req.username(), message, null);}});
 
-        // logout /session DELETE
         javalin.delete("/session", ctx -> {
             if (!databaseAvailable) {ctx.status(500).contentType("application/json").result(gson.toJson("Error: Database unavailable"));}
             String auth = ctx.header("authorization");
@@ -71,14 +62,10 @@ public class Server {
                 ArrayList<Object> result = as.logout(auth);
                 boolean isAuthorized = (boolean) result.getFirst();
                 String message = (String) result.getLast();
-
                 if (!isAuthorized && message.equals("Error: Data access error")) {ResponseUtilities.sendLogoutResponse(ctx, 500, "Error: Server error");}
                 else if (!isAuthorized) {ResponseUtilities.sendLogoutResponse(ctx, 401, "Error: Unauthorized");}
-                else {ResponseUtilities.sendLogoutResponse(ctx, 200, null);}
-            }
-        });
+                else {ResponseUtilities.sendLogoutResponse(ctx, 200, null);}}});
 
-        // list games /game GET
         javalin.get("/game", ctx -> {
             if (!databaseAvailable) {ctx.status(500).contentType("application/json").result(gson.toJson("Error: Database unavailable"));}
             String auth = ctx.header("authorization");
@@ -94,11 +81,8 @@ public class Server {
                 else {
                     ArrayList<Map<String, Object>> gamesList = (ArrayList<Map<String, Object>>) results.getLast();
                     ResponseUtilities.sendListGamesResponse(ctx, 200, gamesList, null);
-                }
-            }
-        });
+                }}});
 
-        // create game /game POST
         javalin.post("/game", ctx -> {
             if (!databaseAvailable) {ResponseUtilities.sendCreateGameResponse(ctx, 500, null, "Error: Server error");}
             String auth = ctx.header("authorization");
@@ -110,15 +94,11 @@ public class Server {
                 boolean isAuthorized = (boolean) result.get(0);
                 String message = (String) result.get(1);
                 Integer gameID = (Integer) result.get(2);
-
                 if (!isAuthorized && message.equals("Error: data access exception")) {ResponseUtilities.sendCreateGameResponse(ctx, 500, null, "Error: Server error");}
                 else if (isAuthorized && gameID != null) {ResponseUtilities.sendCreateGameResponse(ctx, 200, gameID, null);}
                 else if (isAuthorized) {ResponseUtilities.sendCreateGameResponse(ctx, 400, null, "Error: No game name");}
-                else {ResponseUtilities.sendCreateGameResponse(ctx, 401, null, "Error: Unauthorized");}
-            }
-        });
+                else {ResponseUtilities.sendCreateGameResponse(ctx, 401, null, "Error: Unauthorized");}}});
 
-        // join game /game PUT
         javalin.put("/game", ctx -> {
             if (!databaseAvailable) {ctx.status(500).contentType("application/json").result(gson.toJson("Error: Database unavailable"));}
             String auth = ctx.header("authorization");
@@ -129,15 +109,11 @@ public class Server {
                 ArrayList<Object> result = gs.joinGame(req.playerColor(), req.gameID(), auth);
                 boolean canJoinGame = (boolean) result.getFirst();
                 String message = (String) result.getLast();
-
                 if (!canJoinGame && message.equals("Error: data access error")) {ResponseUtilities.sendJoinGameResponse(ctx, 500, "Error: Server error");}
                 else if (!canJoinGame && message.equals("Error: Bad request")) {ResponseUtilities.sendJoinGameResponse(ctx, 400, message);}
                 else if (!canJoinGame && message.equals("Error: Unauthorized")) {ResponseUtilities.sendJoinGameResponse(ctx, 401, message);}
                 else if (!canJoinGame && message.equals("Error: Already taken")) {ResponseUtilities.sendJoinGameResponse(ctx, 403, message);}
-                else {ResponseUtilities.sendJoinGameResponse(ctx, 200, message);}
-            }
-        });
-    }
+                else {ResponseUtilities.sendJoinGameResponse(ctx, 200, message);}}});}
 
     public int run(int desiredPort) {
         javalin.start(desiredPort);
