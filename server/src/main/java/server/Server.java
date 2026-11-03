@@ -96,6 +96,10 @@ public class Server {
                 ResponseObject.LoginResponse response = new ResponseObject.LoginResponse(null, null, message);
                 ctx.status(400).contentType("application/json").result(gson.toJson(response));
             }
+            else if (!canLogin && message.equals("Error: Data access error")) {
+                ResponseObject.LoginResponse response = new ResponseObject.LoginResponse(null, null, message);
+                ctx.status(500).contentType("application/json").result(gson.toJson(response));
+            }
             else if (!canLogin && message.equals("Error: User not registered")) {
                 ResponseObject.LoginResponse response = new ResponseObject.LoginResponse(null, null, message);
                 ctx.status(401).contentType("application/json").result(gson.toJson(response));
@@ -124,7 +128,7 @@ public class Server {
                 ArrayList<Object> result = as.logout(auth);
                 boolean isAuthorized = (boolean) result.getFirst();
                 String message = (String) result.getLast();
-                if (!isAuthorized && message.equals("Error: data access error")) {
+                if (!isAuthorized && message.equals("Error: Data access error")) {
                     ResponseObject.LogoutResponse response = new ResponseObject.LogoutResponse("Error: Server error");
                     ctx.status(500).contentType("application/json").result(gson.toJson(response));
                 } else if (!isAuthorized) {
@@ -173,7 +177,8 @@ public class Server {
         // create game /game POST
         javalin.post("/game", ctx -> {
             if (!databaseAvailable) {
-                ctx.status(500).contentType("application/json").result(gson.toJson("Error: Database unavailable"));
+                ResponseObject.CreateGameResponse response = new ResponseObject.CreateGameResponse(null, "Error: Server error");
+                ctx.status(500).contentType("application/json").result(gson.toJson(response));
             }
             String auth = ctx.header("authorization");
             if (auth == null) {
@@ -185,10 +190,11 @@ public class Server {
                 req = gson.fromJson(ctx.body(), RequestObject.CreateGameRequest.class);
 
                 ArrayList<Object> result = gs.createGame(auth, req.gameName());
-                boolean isAuthorized = (boolean) result.getFirst();
-                Integer gameID = (Integer) result.getLast();
+                boolean isAuthorized = (boolean) result.get(0);
+                String message = (String) result.get(1);
+                Integer gameID = (Integer) result.get(2);
 
-                if (!isAuthorized && gameID != null) {
+                if (!isAuthorized && message.equals("Error: data access exception")) {
                     ResponseObject.CreateGameResponse response = new ResponseObject.CreateGameResponse(null, "Error: Server error");
                     ctx.status(500).contentType("application/json").result(gson.toJson(response));
                 }

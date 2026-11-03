@@ -42,21 +42,24 @@ public class GameService {
         ArrayList<Object> results = new ArrayList<>();
         try {
             if (!da.isAuthorized(authToken)) {
-                results.addFirst(false);
-                results.addLast(null);
+                results.add(0, false);
+                results.add(1, "Error: Unauthorized");
+                results.add(2, null);
             } else if (da.isAuthorized(authToken) && gameName != null) {
                 Integer gameID = da.createGame(gameName);
-                results.addFirst(true);
-                results.addLast(gameID);
+                results.add(0, true);
+                results.add(1, "Success");
+                results.add(2, gameID);
             } else {
-                results.addFirst(true);
+                results.add(0, true);
+                results.add(1, "Error: no game name");
                 results.addLast(null);
             }
-
             return results;
         } catch (DataAccessException e) {
-            results.addFirst(false);
-            results.addLast("Error: data access exception");
+            results.add(0, false);
+            results.add(1, "Error: data access exception");
+            results.add(2, null);
             return results;
         }
     }
