@@ -77,11 +77,9 @@ public class Server {
                     String message = (String) results.getLast();
                     if (message.equals("Error: data access error")) {ResponseUtilities.sendListGamesResponse(ctx, 500, null, "Error: Server error");}
                     else {ResponseUtilities.sendListGamesResponse(ctx, 401, null, "Error: Unauthorized");}
-                }
-                else {
+                } else {
                     ArrayList<Map<String, Object>> gamesList = (ArrayList<Map<String, Object>>) results.getLast();
-                    ResponseUtilities.sendListGamesResponse(ctx, 200, gamesList, null);
-                }}});
+                    ResponseUtilities.sendListGamesResponse(ctx, 200, gamesList, null);}}});
 
         javalin.post("/game", ctx -> {
             if (!databaseAvailable) {ResponseUtilities.sendCreateGameResponse(ctx, 500, null, "Error: Server error");}
