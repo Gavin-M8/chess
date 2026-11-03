@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import model.UserData;
+import model.GameData;
+import model.AuthData;
 
 public class MemoryDataAccess2 implements DataAccess{
     private HashMap<String, UserData> users;
@@ -73,9 +76,10 @@ public class MemoryDataAccess2 implements DataAccess{
         return false;
     }
 
-    public void createAuth(String username) {
+    public String createAuth(String username) {
         AuthData token = new AuthData(UUID.randomUUID().toString());
         authtokens.get(username).add(token);
+        return token.getAuthToken();
     }
 
     public void deleteAuth(String authToken) {

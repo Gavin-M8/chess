@@ -27,9 +27,9 @@ public class AuthService {
                 result.add(0, false);
                 result.add(1, "Error: Password incorrect");
             } else {
-                result.addFirst(true);
-                da.createAuth(username);
-                result.add(1, da.getToken(username).getLast().getAuthToken());
+                result.add(0,true);
+                String auth = da.createAuth(username);
+                result.add(1, auth);
             }
             return result;
         } catch (DataAccessException e) {

@@ -21,8 +21,6 @@ public class GameData {
         this.blackUsername = blackUsername;
     }
 
-    public String getGameName() {return gameName;}
-
     public int getGameID() {return gameID;}
 
     public String getBlackUsername() {return blackUsername;}

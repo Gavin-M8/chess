@@ -4,6 +4,9 @@ import chess.ChessGame;
 
 import java.util.ArrayList;
 import java.util.Map;
+import model.AuthData;
+import model.GameData;
+import model.UserData;
 
 public interface DataAccess {
 
@@ -16,7 +19,7 @@ public interface DataAccess {
     // auth
     ArrayList<AuthData> getToken(String username) throws DataAccessException;
     boolean isAuthorized(String auth) throws DataAccessException;
-    void createAuth(String username) throws DataAccessException;
+    String createAuth(String username) throws DataAccessException;
     void deleteAuth(String authToken) throws DataAccessException;
     String hashPassword(String password);
 

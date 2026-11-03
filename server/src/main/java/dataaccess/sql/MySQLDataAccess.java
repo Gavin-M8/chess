@@ -2,7 +2,12 @@ package dataaccess.sql;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import dataaccess.*;
+import dataaccess.DataAccess;
+import dataaccess.DatabaseManager;
+import dataaccess.DataAccessException;
+import model.UserData;
+import model.GameData;
+import model.AuthData;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.security.SecureRandom;
@@ -127,16 +132,18 @@ public class MySQLDataAccess implements DataAccess {
     }
 
     @Override
-    public void createAuth(String username) throws DataAccessException {
+    public String createAuth(String username) throws DataAccessException {
         var statement = "INSERT INTO auth (username, auth) VALUES (?, ?)";
-        var auth = new AuthData(UUID.randomUUID().toString());
+        String authString = UUID.randomUUID().toString();
+        var auth = new AuthData(authString);
         String json = new Gson().toJson(auth);
         executeUpdate(statement, username, json);
+        return authString;
     }
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
-        var statement = "DELETE FROM auth WHERE auth=?";
+        var statement = "DELETE auth FROM auth WHERE auth=?";
         var auth = new AuthData(authToken);
         String json = new Gson().toJson(auth);
         executeUpdate(statement, json);
@@ -178,8 +185,12 @@ public class MySQLDataAccess implements DataAccess {
     @Override
     public boolean colorTaken(ChessGame.TeamColor playerColor, Integer gameID) throws DataAccessException {
         String statement;
-        if (playerColor == ChessGame.TeamColor.WHITE) statement = "SELECT whiteUsername FROM games WHERE gameID=?";
-        else statement = "SELECT blackUsername FROM games WHERE gameID=?";
+        if (playerColor == ChessGame.TeamColor.WHITE) {
+            statement = "SELECT whiteUsername FROM games WHERE gameID=?";
+        }
+        else {
+            statement = "SELECT blackUsername FROM games WHERE gameID=?";
+        }
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.setInt(1, gameID);
@@ -217,7 +228,7 @@ public class MySQLDataAccess implements DataAccess {
             var statement = "SELECT * FROM games";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
+                    while (rs.next()) {
                         var json = rs.getString("game");
                         GameData game = new Gson().fromJson(json, GameData.class);
                         var gameMap = game.getGame();
