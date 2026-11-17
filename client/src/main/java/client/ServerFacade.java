@@ -2,6 +2,7 @@ package client;
 
 public class ServerFacade {
 
+
     // send http requests to server
 
         // register user

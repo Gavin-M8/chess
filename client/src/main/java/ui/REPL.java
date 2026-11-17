@@ -2,6 +2,16 @@ package ui;
 
 public class REPL {
 
+    private String serverURL;
+
+    public REPL(String serverURL) {
+        this.serverURL = serverURL;
+    }
+
+    public void run() {
+
+    }
+
     // send initial message to console
 
     // while (true) {
