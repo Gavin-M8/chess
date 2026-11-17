@@ -16,6 +16,7 @@ public class ChessClient {
     public String eval(CommandObject command) {
         CommandObject.Command cmd = command.getCommand();
         String message = command.getMessage();
+        String authToken = command.getAuthToken();
         String[] params = message.toLowerCase().split("\\s+");
         return switch (cmd) {
             case REGISTER -> register(params);
