@@ -1,14 +1,9 @@
 package client;
 
-public class GameState {
-
-    // first enum:
-        // game ongoing
-        // game checkmate
-        // game stalemate
-        // game resigned
-
-    // second enum:
-        // black wins
-        // white wins
+public enum GameState {
+    ONGOING,
+    BLACK_IN_CHECKMATE,
+    WHITE_IN_CHECKMATE,
+    STALEMATE,
+    RESIGNED,
 }

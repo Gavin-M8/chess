@@ -1,8 +1,6 @@
 package client;
 
-public class UserState {
-
-    // one enum:
-        // user logged in
-        // user not logged in
+public enum UserState {
+    SIGNED_IN,
+    SIGNED_OUT,
 }

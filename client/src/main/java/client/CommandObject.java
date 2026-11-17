@@ -2,19 +2,26 @@ package client;
 
 public class CommandObject {
 
-    // has:
-        // command
-        // string message
-        // authToken
+    private Command command;
+    private String authToken;
+    private String message;
 
-    // one command enum:
-        // help
-        // quit
-        // login
-        // register
-        // logout
-        // create game
-        // list games
-        // play game
-        // observe game
+    public CommandObject(Command command, String authToken, String message) {
+        this.command = command;
+        this.authToken = authToken;
+        this.message = message;
+    }
+
+    public enum Command {
+        HELP,
+        QUIT,
+        LOGIN,
+        REGISTER,
+        LOGOUT,
+        CREATE_GAME,
+        LIST_GAMES,
+        PLAY_GAME,
+        OBSERVE_GAME,
+    }
+
 }
