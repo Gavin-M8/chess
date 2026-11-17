@@ -8,6 +8,9 @@ import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 
+import server.RequestObject.*;
+import server.ResponseObject.*;
+
 public class ServerFacade {
 
     private final HttpClient client = HttpClient.newHttpClient();
@@ -17,9 +20,15 @@ public class ServerFacade {
         this.serverURL = serverURL;
     }
 
-    // send http requests to server
-
         // register user
+        public RegisterResponse register(String username, String password, String email) throws ResponseException {
+            String path = "/user";
+            var registerRequest = new RegisterRequest(username, password, email);
+            var body = makeRequestBody(registerRequest);
+            var request = buildRequest("PUT", path, body);
+            var response = sendRequest(request);
+            return handleResponse(response, RegisterResponse.class);
+        }
 
         // login user
 
