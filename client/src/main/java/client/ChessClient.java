@@ -1,5 +1,7 @@
 package client;
 
+import java.util.ArrayList;
+
 public class ChessClient {
 
     private final ServerFacade server;
@@ -11,19 +13,52 @@ public class ChessClient {
 
     // handle repl commands:
 
+    public String eval(CommandObject command) {
+        CommandObject.Command cmd = command.getCommand();
+        String message = command.getMessage();
+        String[] params = message.toLowerCase().split("\\s+");
+        return switch (cmd) {
+            case REGISTER -> register(params);
+            case QUIT -> "quit";
+            default -> help();
+        };
+    }
+
         // PRE LOGIN
 
             // help
-            // return list of commands available
-
-            // quit
-            // exit the repl
+            public String help() {
+                return
+                    """
+                    these are the things you can do:
+                    `help` for help
+                    `register` to register as a new user. params: [username, password, email]
+                    """;
+            }
 
             // login
             // call serverFacade login method
 
             // register
             // call serverFacade register method
+            public String register(String[] params) {
+                try {
+                    if (params.length != 3) {
+                        return "Register requires three parameters: username, password, and email.";
+                    } else {
+                        String username = params[0];
+                        String password = params[1];
+                        String email = params[2];
+
+                        userState = UserState.SIGNED_IN;
+
+                        return server.register(username, password, email).toString();
+                    }
+                } catch (Throwable e) {
+                    return String.format("Error: %s", e.getMessage());
+                }
+            }
+
 
         // POST LOGIN
 
