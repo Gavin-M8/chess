@@ -33,21 +33,40 @@ public class ChessClient {
 
         // PRE LOGIN
 
-            // help
             public String help() {
                 return
                     """
-                    these are the things you can do:
-                    `help` for help
-                    `register` to register as a new user. params: [username, password, email]
+                    Commands:
+                    
+                    `help`                                      print a list of commands
+                    `quit`                                      exit the chess program
+                    `register <username> <password> <email>`    register as a new user
+                    `login <username> <password>`               login as a returning user
+                    `logout`                                    logout the current user
+                    `create_game <gameName>`                    create a new chess game
+                    `play_game <playerColor> <gameID>`          join a chess game as a player
+                    `observe_game <gameID>`                     join a chess game as an observer
+                    
                     """;
             }
 
-            // login
-            // call serverFacade login method
+            public String login(String[] params) {
+                try {
+                    if ( params == null || params.length != 2) {
+                        return "Login requires two parameters: username and password.";
+                    } else {
+                        String username = params[0];
+                        String password = params[1];
 
-            // register
-            // call serverFacade register method
+                        userState = UserState.SIGNED_IN;
+
+                        return server.login(username, password).toString();
+                    }
+                } catch (Throwable e) {
+                    return String.format("%s", e.getMessage());
+                }
+            }
+
             public String register(String[] params) {
                 try {
                     if ( params == null || params.length != 3) {
