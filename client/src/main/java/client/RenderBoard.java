@@ -1,5 +1,7 @@
 package client;
 
+import chess.ChessBoard;
+
 public class RenderBoard {
 
     // takes in a ChessBoard and returns a string version of it to be printed
