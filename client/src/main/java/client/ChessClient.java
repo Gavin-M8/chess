@@ -23,7 +23,6 @@ public class ChessClient {
     public String eval(CommandObject command) {
         CommandObject.Command cmd = command.getCommand();
         String message = command.getMessage();
-        authToken = command.getAuthToken();
         String[] params;
         if (message != null) {
             params = message.toLowerCase().split("\\s+");
@@ -71,8 +70,7 @@ public class ChessClient {
                 String password = params[1];
                 userState = UserState.LOGGED_IN;
 
-                String json = server.login(username, password).toString();
-                LoginResponse response = new Gson().fromJson(json, LoginResponse.class);
+                LoginResponse response = server.login(username, password);
                 authToken = response.authToken();
 
                 return String.format("Successfully logged in as %s", username);
@@ -92,8 +90,7 @@ public class ChessClient {
                 String email = params[2];
                 userState = UserState.LOGGED_IN;
 
-                String json = server.register(username, password, email).toString();
-                RegisterResponse response = new Gson().fromJson(json, RegisterResponse.class);
+                RegisterResponse response = server.register(username, password, email);
                 authToken = response.authToken();
 
                 return String.format("Successfully registered %s", username);
@@ -127,9 +124,7 @@ public class ChessClient {
             }
             else {
                 String gameName = params[0];
-
-                String json = server.createGame(authToken, gameName).toString();
-                CreateGameResponse response = new Gson().fromJson(json, CreateGameResponse.class);
+                CreateGameResponse response = server.createGame(authToken, gameName);
 
                 return String.format("Created game:\n gameName:%s     gameID:%s", gameName, response.gameID());
             }
@@ -139,20 +134,19 @@ public class ChessClient {
     }
 
     public String listGames(String authToken) {
-        String formattedGamesList = "Name:   ID:";
+        StringBuilder formattedGamesList = new StringBuilder("Name:   ID:");
         try {
             if (authToken == null || userState != UserState.LOGGED_IN) {
                 return "Cannot list games, user not logged in";
             }
             else {
-                String json = server.listGames(authToken).toString();
-                ListGamesResponse response = new Gson().fromJson(json, ListGamesResponse.class);
+                ListGamesResponse response = server.listGames(authToken);
                 gamesList = response.games();
                 for (Map<String, Object> game : gamesList) {
-                    formattedGamesList += String.format("\n%s   %s", game.get("gameName"), game.get("gameID"));
+                    formattedGamesList.append(String.format("\n%s   %s", game.get("gameName"), game.get("gameID")));
                 }
 
-                return formattedGamesList;
+                return formattedGamesList.toString();
             }
         } catch (Throwable e) {
             return String.format("%s", e.getMessage());
@@ -185,8 +179,7 @@ public class ChessClient {
                     return "Invalid gameID: please input a four digit gameID";
                 }
 
-                String json = server.joinGame(authToken, color, gameID).toString();
-                JoinGameResponse response = new Gson().fromJson(json, JoinGameResponse.class);
+                JoinGameResponse response = server.joinGame(authToken, color, gameID);
 
                 ChessGame game = new ChessGame();
                 ChessBoard board = game.getBoard();
@@ -234,7 +227,8 @@ public class ChessClient {
     // clear
     public String clear() {
         try {
-            return server.clear().toString();
+            server.clear();
+            return "Successfully cleared database";
         } catch (Throwable e) {
             return e.getMessage();
         }

@@ -78,11 +78,14 @@ public class ServerFacade {
         }
 
         // clear /db DELETE
-        public ClearResponse clear() throws ResponseException {
+        public void clear() throws ResponseException, URISyntaxException {
             String path = "/db";
-            var request = buildRequest("DELETE", path, null, null);
+            var request = HttpRequest.newBuilder()
+                    .uri(new URI( serverURL + path))
+                    .DELETE()
+                    .build();
             var response = sendRequest(request);
-            return handleResponse(response, ClearResponse.class);
+            handleResponse(response, ClearResponse.class);
         }
 
     private HttpRequest buildRequest(String method, String path, BodyPublisher body, String authToken) {

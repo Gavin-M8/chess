@@ -58,6 +58,7 @@ public class REPL {
             case "list_games" -> command = CommandObject.Command.LIST_GAMES;
             case "play_game" -> command = CommandObject.Command.PLAY_GAME;
             case "observe_game" -> command = CommandObject.Command.OBSERVE_GAME;
+            case "admin_clear" -> command = CommandObject.Command.ADMIN_CLEAR;
             default -> command = CommandObject.Command.HELP;
         }
         String message;
