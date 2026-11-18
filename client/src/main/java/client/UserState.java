@@ -1,6 +1,6 @@
 package client;
 
 public enum UserState {
-    SIGNED_IN,
-    SIGNED_OUT,
+    LOGGED_IN,
+    LOGGED_OUT,
 }

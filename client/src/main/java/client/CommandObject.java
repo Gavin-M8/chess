@@ -36,6 +36,7 @@ public class CommandObject {
         LIST_GAMES,
         PLAY_GAME,
         OBSERVE_GAME,
+        ADMIN_CLEAR,
     }
 
     @Override

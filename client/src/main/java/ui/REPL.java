@@ -1,19 +1,20 @@
 package ui;
 
+import java.util.List;
 import java.util.Scanner;
 
 import client.ChessClient;
 import client.ChessClient.*;
 import client.CommandObject;
+import model.GameData;
 
 public class REPL {
 
-    private String serverURL;
-    private ChessClient client;
-    private String authToken;
+    private final ChessClient client;
+    private final String authToken;
+    private List<GameData> gamesList;
 
     public REPL(String serverURL) {
-        this.serverURL = serverURL;
         this.client = new ChessClient(serverURL);
         this.authToken = null;
     }
@@ -28,13 +29,13 @@ public class REPL {
         while (!result.equals("quit")) {
             printPrompt();
             String line = scanner.nextLine();
-
-            // convert line to command object
             CommandObject cmd = getCmd(line);
-
 
             try {
                 result = client.eval(cmd);
+
+                // fix the formatting of the result, store most recent authToken in authToken variable
+
                 System.out.print(result);
             } catch (Throwable e) {
                 var msg = e.toString();
@@ -66,20 +67,6 @@ public class REPL {
 
         return new CommandObject(command, authToken, message);
     }
-
-    // send initial message to console
-
-    // while (true) {
-
-        // evaluate if input is valid
-            // if yes, send CommandObject to ClientMain
-            // if no, send error message and display help
-
-        // print CommandObject response
-            // call renderBoard to print board
-            // print notification message
-
-    // }
 
     private void printPrompt() {
         System.out.print("\n>>> ");
