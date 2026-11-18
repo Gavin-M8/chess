@@ -25,7 +25,7 @@ public class ServerFacade {
             String path = "/user";
             var registerRequest = new RegisterRequest(username, password, email);
             var body = makeRequestBody(registerRequest);
-            var request = buildRequest("PUT", path, body);
+            var request = buildRequest("POST", path, body);
             var response = sendRequest(request);
             return handleResponse(response, RegisterResponse.class);
         }
@@ -42,10 +42,10 @@ public class ServerFacade {
 
         // clear
 
-    private HttpRequest buildRequest(String method, String path, Object body) {
+    private HttpRequest buildRequest(String method, String path, BodyPublisher body) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverURL + path))
-                .method(method, makeRequestBody(body));
+                .method(method, body);
         if (body != null) {
             request.setHeader("Content-Type", "application/json");
         }

@@ -17,7 +17,13 @@ public class ChessClient {
         CommandObject.Command cmd = command.getCommand();
         String message = command.getMessage();
         String authToken = command.getAuthToken();
-        String[] params = message.toLowerCase().split("\\s+");
+        String[] params;
+        if (message != null) {
+            params = message.toLowerCase().split("\\s+");
+        } else {
+            params = null;
+        }
+
         return switch (cmd) {
             case REGISTER -> register(params);
             case QUIT -> "quit";
@@ -44,7 +50,7 @@ public class ChessClient {
             // call serverFacade register method
             public String register(String[] params) {
                 try {
-                    if (params.length != 3) {
+                    if ( params == null || params.length != 3) {
                         return "Register requires three parameters: username, password, and email.";
                     } else {
                         String username = params[0];
@@ -56,7 +62,7 @@ public class ChessClient {
                         return server.register(username, password, email).toString();
                     }
                 } catch (Throwable e) {
-                    return String.format("Error: %s", e.getMessage());
+                    return String.format("%s", e.getMessage());
                 }
             }
 

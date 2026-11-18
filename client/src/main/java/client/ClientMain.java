@@ -14,7 +14,7 @@ public class ClientMain {
             REPL repl = new REPL(serverURL);
             repl.run();
         } catch (Throwable e) {
-            System.out.printf("Error: Unable to start  server %s%n", e.getMessage());
+            System.out.printf("Error: Unable to start  server: %s%n", e.getMessage());
         }
     }
 }

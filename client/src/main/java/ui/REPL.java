@@ -48,30 +48,23 @@ public class REPL {
         String commandString = args[0];
         CommandObject.Command command;
         switch (commandString) {
-            case "help":
-                command = CommandObject.Command.HELP;
-            case "quit":
-                command = CommandObject.Command.QUIT;
-            case "login":
-                command = CommandObject.Command.LOGIN;
-            case "register":
-                command = CommandObject.Command.REGISTER;
-            case "logout":
-                command = CommandObject.Command.LOGOUT;
-            case "create_game":
-                command = CommandObject.Command.CREATE_GAME;
-            case "list_games":
-                command = CommandObject.Command.LIST_GAMES;
-            case "play_game":
-                command = CommandObject.Command.PLAY_GAME;
-            case "observe_game":
-                command = CommandObject.Command.OBSERVE_GAME;
-            default:
-                command = CommandObject.Command.HELP;
+            case "help" -> command = CommandObject.Command.HELP;
+            case "quit" -> command = CommandObject.Command.QUIT;
+            case "login" -> command = CommandObject.Command.LOGIN;
+            case "register" -> command = CommandObject.Command.REGISTER;
+            case "logout" -> command = CommandObject.Command.LOGOUT;
+            case "create_game" -> command = CommandObject.Command.CREATE_GAME;
+            case "list_games" -> command = CommandObject.Command.LIST_GAMES;
+            case "play_game" -> command = CommandObject.Command.PLAY_GAME;
+            case "observe_game" -> command = CommandObject.Command.OBSERVE_GAME;
+            default -> command = CommandObject.Command.HELP;
         }
-        String message = args[1];
-        CommandObject cmd = new CommandObject(command, authToken, message);
-        return cmd;
+        String message;
+        if (args.length > 1) {
+            message = args[1];
+        } else {message = null;}
+
+        return new CommandObject(command, authToken, message);
     }
 
     // send initial message to console
