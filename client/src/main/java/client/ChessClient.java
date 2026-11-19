@@ -2,8 +2,8 @@ package client;
 
 import chess.ChessGame;
 import chess.ChessBoard;
-import com.google.gson.Gson;
 import server.ResponseObject.*;
+import ui.EscapeSequences;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,10 +15,14 @@ public class ChessClient {
     private UserState userState = UserState.LOGGED_OUT;
     private String authToken;
     private HashMap<Integer, String> gamesList;
+    private HashMap<Integer, String> secretGamesList;
+    private int gameNumber;
 
     public ChessClient(String serverURL) {
         this.server = new ServerFacade(serverURL);
         this.gamesList = new HashMap<>();
+        this.secretGamesList = new HashMap<>();
+        this.gameNumber = 1;
     }
 
 
@@ -56,9 +60,9 @@ public class ChessClient {
             `register <username> <password> <email>`    register as a new user
             `login <username> <password>`               login as a returning user
             `logout`                                    logout the current user
-            `create_game <gameName>`                    create a new chess game
-            `play_game <playerColor> <gameID>`          join a chess game as a player
-            `observe_game <gameID>`                     join a chess game as an observer
+            `create <gameName>`                    create a new chess game
+            `play <gameNumber> <playerColor>`          join a chess game as a player
+            `observe <gameNumber>`                     join a chess game as an observer
             """;
     }
 
@@ -126,9 +130,11 @@ public class ChessClient {
             else {
                 String gameName = params[0];
                 CreateGameResponse response = server.createGame(authToken, gameName);
-                gamesList.put(response.gameID(), gameName);
-
-                return String.format("Created game:\n gameName:%s     gameID:%s", gameName, response.gameID());
+                secretGamesList.put(response.gameID(), gameName);
+                gamesList.put(gameNumber, gameName);
+                String result = String.format("Created game: %s  %s", gameNumber, gameName);
+                gameNumber += 1;
+                return result;
             }
         } catch (Throwable e) {
             return String.format("%s", e.getMessage());
@@ -136,7 +142,7 @@ public class ChessClient {
     }
 
     public String listGames(String authToken) {
-        String formattedGamesList = "Name:   ID:";
+        String formattedGamesList = EscapeSequences.SET_TEXT_UNDERLINE +  "#  Name" + EscapeSequences.RESET_TEXT_UNDERLINE;
         try {
             if (authToken == null || userState != UserState.LOGGED_IN) {
                 return "Cannot list games, user not logged in";
@@ -147,8 +153,14 @@ public class ChessClient {
                     Object rawId = game.get("gameID");
                     int gameID = ((Number) rawId).intValue();
                     String gameName = (String) game.get("gameName");
-                    gamesList.put(gameID, gameName);
-                    formattedGamesList += String.format("\n%s   %s", gameName, gameID);
+                    if (!gamesList.containsValue(gameName)) {
+                        secretGamesList.put(gameID, gameName);
+                        gamesList.put(gameNumber, gameName);
+                        formattedGamesList += String.format("\n%s  %s", gameNumber, gameName);
+                        gameNumber += 1;
+                    } else {
+                        formattedGamesList += String.format("\n%s  %s", getGameNumber(gameName), gameName);
+                    }
                 }
 
                 return formattedGamesList;
@@ -167,7 +179,7 @@ public class ChessClient {
                 return "play_game requires two parameters: <playerColor> <gameID>";
             }
             else {
-                String playerColor = params[0];
+                String playerColor = params[1];
                 ChessGame.TeamColor color;
                 if (playerColor.equals("white")) {
                     color = ChessGame.TeamColor.WHITE;
@@ -177,17 +189,17 @@ public class ChessClient {
                 else {
                     return "Invalid playerColor: must be `white` or `black`";
                 }
-                int gameID;
+                int gameNumberInput;
                 try {
-                    gameID = Integer.parseInt(params[1]);
+                    gameNumberInput = Integer.parseInt(params[0]);
                 } catch (NumberFormatException e) {
-                    return "Invalid gameID: please input a four digit gameID";
+                    return "Invalid gameNumber: please input a number";
                 }
-                if (!gamesList.containsKey(gameID)) {
-                    return "Invalid gameID";
+                if (!gamesList.containsKey(gameNumberInput)) {
+                    return "Invalid gameNumber: game does not exist";
                 }
                 try {
-                    JoinGameResponse response = server.joinGame(authToken, color, gameID);
+                    JoinGameResponse response = server.joinGame(authToken, color, getGameID(gameNumberInput));
                 } catch (ResponseException e) {
                     return e.getMessage();
                 }
@@ -199,7 +211,7 @@ public class ChessClient {
                 if (playerColor.equals("white")) {renderedBoard = RenderBoard.renderBoard(board, RenderBoard.RenderPerspective.WHITE);}
                 else {renderedBoard = RenderBoard.renderBoard(board, RenderBoard.RenderPerspective.BLACK);}
 
-                return String.format("Joined game %s as %s \n\n%s", gameID, playerColor, renderedBoard);
+                return String.format("Joined game %s as %s \n\n%s", gameNumberInput, playerColor, renderedBoard);
             }
         } catch (Throwable e) {
             return e.getMessage();
@@ -238,9 +250,30 @@ public class ChessClient {
     public String clear() {
         try {
             server.clear();
+            gameNumber = 1;
             return "Successfully cleared database";
         } catch (Throwable e) {
             return e.getMessage();
         }
+    }
+
+    private int getGameNumber(String gameName) {
+        for (int gameNumber : gamesList.keySet()) {
+            if (gamesList.get(gameNumber).equals(gameName)) {
+                return gameNumber;
+            }
+        }
+        return 0;
+    }
+
+    private int getGameID(int gameNumber) {
+        String gameName = gamesList.get(gameNumber);
+
+        for (int gameID : secretGamesList.keySet()) {
+            if (secretGamesList.get(gameID).equals(gameName)) {
+                return gameID;
+            }
+        }
+        return 0;
     }
 }

@@ -52,10 +52,10 @@ public class REPL {
             case "login" -> command = CommandObject.Command.LOGIN;
             case "register" -> command = CommandObject.Command.REGISTER;
             case "logout" -> command = CommandObject.Command.LOGOUT;
-            case "create_game" -> command = CommandObject.Command.CREATE_GAME;
-            case "list_games" -> command = CommandObject.Command.LIST_GAMES;
-            case "play_game" -> command = CommandObject.Command.PLAY_GAME;
-            case "observe_game" -> command = CommandObject.Command.OBSERVE_GAME;
+            case "create" -> command = CommandObject.Command.CREATE_GAME;
+            case "list" -> command = CommandObject.Command.LIST_GAMES;
+            case "play" -> command = CommandObject.Command.PLAY_GAME;
+            case "observe" -> command = CommandObject.Command.OBSERVE_GAME;
             case "admin_clear" -> command = CommandObject.Command.ADMIN_CLEAR;
             default -> command = CommandObject.Command.HELP;
         }
