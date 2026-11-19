@@ -50,19 +50,29 @@ public class ChessClient {
     }
 
     public String help() {
-        return
-            """
-            Commands:
-            
-            `help`                                      print a list of commands
-            `quit`                                      exit the chess program
-            `register <username> <password> <email>`    register as a new user
-            `login <username> <password>`               login as a returning user
-            `logout`                                    logout the current user
-            `create <gameName>`                         create a new chess game
-            `play <gameNumber> <playerColor>`           join a chess game as a player
-            `observe <gameNumber>`                      join a chess game as an observer
-            """;
+        if (userState == UserState.LOGGED_IN) {
+            return
+                    """
+                    Commands:
+                    
+                    `help`                                      print a list of commands
+                    `quit`                                      exit the chess program
+                    `logout`                                    logout the current user
+                    `create <gameName>`                         create a new chess game
+                    `play <gameNumber> <playerColor>`           join a chess game as a player
+                    `observe <gameNumber>`                      join a chess game as an observer
+                    """;
+        } else {
+            return """
+                    Commands:
+                    
+                    `help`                                      print a list of commands
+                    `quit`                                      exit the chess program
+                    `register <username> <password> <email>`    register as a new user
+                    `login <username> <password>`               login as a returning user
+                    """;
+        }
+
     }
 
     public String login(String[] params) {
@@ -229,11 +239,14 @@ public class ChessClient {
                 return "observe_game requires one parameters: <gameID>";
             }
             else {
-                int gameID;
+                int gameNumber;
                 try {
-                    gameID = Integer.parseInt(params[0]);
+                    gameNumber = Integer.parseInt(params[0]);
                 } catch (NumberFormatException e) {
-                    return "Invalid gameID: please input a four digit gameID";
+                    return "Invalid gameNumber";
+                }
+                if (!gamesList.containsKey(gameNumber)) {
+                    return "Invalid gameNumber: game does not exist";
                 }
                 ChessGame game = new ChessGame();
                 ChessBoard board = game.getBoard();
@@ -241,7 +254,7 @@ public class ChessClient {
 
                 String renderedBoard = RenderBoard.renderBoard(board, RenderBoard.RenderPerspective.WHITE);
 
-                return String.format("Observing game %s\n\n%s", gameID, renderedBoard);
+                return String.format("Observing game %s\n\n%s", gameNumber, renderedBoard);
             }
         } catch (Throwable e) {
             return String.format("%s", e.getMessage());
