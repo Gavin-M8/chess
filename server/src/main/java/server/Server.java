@@ -8,12 +8,14 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import model.RequestObject;
+import server.websocket.WebSocketHandler;
 import service.*;
 
 public class Server {
 
     private final Javalin javalin;
     private boolean databaseAvailable = true;
+    private final WebSocketHandler webSocketHandler = new WebSocketHandler();
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
@@ -26,12 +28,9 @@ public class Server {
         GameService gs = new GameService(dao);
 
         javalin.ws("/ws", ws -> {
-            ws.onConnect(ctx -> {
-                ctx.enableAutomaticPings();
-                System.out.println("WebSocket connected");
-            });
-            ws.onMessage(ctx -> ctx.send(ctx.message()));
-            ws.onClose(ctx -> System.out.println("WebSocket closed"));
+            ws.onConnect(webSocketHandler);
+            ws.onMessage(webSocketHandler);
+            ws.onClose(webSocketHandler);
         });
 
         javalin.delete("/db", ctx -> {
