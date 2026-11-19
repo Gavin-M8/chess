@@ -6,6 +6,8 @@ import dataaccess.sql.MySQLDataAccess;
 import io.javalin.*;
 import java.util.ArrayList;
 import java.util.Map;
+
+import model.RequestObject;
 import service.*;
 
 public class Server {

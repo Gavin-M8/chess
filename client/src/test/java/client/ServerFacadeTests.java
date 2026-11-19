@@ -2,7 +2,7 @@ package client;
 
 import chess.ChessGame;
 import org.junit.jupiter.api.*;
-import server.ResponseObject.*;
+import model.ResponseObject.*;
 import server.Server;
 
 import java.net.URISyntaxException;

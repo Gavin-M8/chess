@@ -9,8 +9,8 @@ import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 
-import server.RequestObject.*;
-import server.ResponseObject.*;
+import model.RequestObject.*;
+import model.ResponseObject.*;
 
 public class ServerFacade {
 

@@ -2,10 +2,9 @@ package client;
 
 import chess.ChessGame;
 import chess.ChessBoard;
-import server.ResponseObject.*;
+import model.ResponseObject.*;
 import ui.EscapeSequences;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
