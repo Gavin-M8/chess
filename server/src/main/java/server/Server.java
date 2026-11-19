@@ -25,6 +25,15 @@ public class Server {
         AuthService as = new AuthService(dao);
         GameService gs = new GameService(dao);
 
+        javalin.ws("/ws", ws -> {
+            ws.onConnect(ctx -> {
+                ctx.enableAutomaticPings();
+                System.out.println("WebSocket connected");
+            });
+            ws.onMessage(ctx -> ctx.send(ctx.message()));
+            ws.onClose(ctx -> System.out.println("WebSocket closed"));
+        });
+
         javalin.delete("/db", ctx -> {
             if (!databaseAvailable) {ctx.status(500).contentType("application/json").result(gson.toJson("Error: Database unavailable"));}
             boolean didClear = us.clear();
