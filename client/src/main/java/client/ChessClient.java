@@ -151,7 +151,7 @@ public class ChessClient {
     }
 
     public String listGames(String authToken) {
-        String formattedGamesList = EscapeSequences.SET_TEXT_UNDERLINE +  "#  Name" + EscapeSequences.RESET_TEXT_UNDERLINE;
+        String formattedGamesList = EscapeSequences.SET_TEXT_UNDERLINE +  "#  Name      white      black" + EscapeSequences.RESET_TEXT_UNDERLINE;
         try {
             if (authToken == null || userState != UserState.LOGGED_IN) {
                 return "Cannot list games, user not logged in";
@@ -162,13 +162,23 @@ public class ChessClient {
                     Object rawId = game.get("gameID");
                     int gameID = ((Number) rawId).intValue();
                     String gameName = (String) game.get("gameName");
+
+                    String whiteUsername;
+                    String blackUsername;
+                    if (game.get("whiteUsername") == null) {whiteUsername = "(none)";}
+                    else {whiteUsername = (String) game.get("whiteUsername");}
+
+                    if (game.get("blackUsername") == null) {blackUsername = "(none)";}
+                    else {blackUsername = (String) game.get("blackUsername");}
                     if (!gamesList.containsValue(gameName)) {
                         secretGamesList.put(gameID, gameName);
                         gamesList.put(gameNumber, gameName);
-                        formattedGamesList += String.format("\n%s  %s", gameNumber, gameName);
+
+
+                        formattedGamesList += String.format("\n%s  %s   %s   %s", gameNumber, gameName, whiteUsername, blackUsername);
                         gameNumber += 1;
                     } else {
-                        formattedGamesList += String.format("\n%s  %s", getGameNumber(gameName), gameName);
+                        formattedGamesList += String.format("\n%s  %s   %s   %s", getGameNumber(gameName), gameName, whiteUsername, blackUsername);
                     }
                 }
                 if (gamesList.isEmpty()) {
