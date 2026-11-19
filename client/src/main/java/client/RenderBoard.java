@@ -9,7 +9,6 @@ import ui.EscapeSequences;
 
 public class RenderBoard {
 
-    // takes in a ChessBoard and returns a string version of it to be printed
     public static String renderBoard(ChessBoard board, RenderPerspective color) {
         StringBuilder boardString = new StringBuilder();
 
@@ -21,10 +20,10 @@ public class RenderBoard {
                     boardString.append(getSquareColor(isWhite));
 
                     if (piece != null) {
-                        boardString.append(getPieceColor(piece.getTeamColor())); // e.g., SET_TEXT_COLOR_RED
+                        boardString.append(getPieceColor(piece.getTeamColor()));
                         boardString.append(" ").append(getPieceChar(piece)).append(" ");
                     } else {
-                        boardString.append(EscapeSequences.EMPTY); // Use em-space for alignment
+                        boardString.append("   ");
                     }
                 }
                 boardString.append(EscapeSequences.RESET_BG_COLOR).append(EscapeSequences.RESET_TEXT_COLOR).append("\n");
@@ -37,10 +36,10 @@ public class RenderBoard {
                     boardString.append(getSquareColor(isWhite));
 
                     if (piece != null) {
-                        boardString.append(getPieceColor(piece.getTeamColor())); // e.g., SET_TEXT_COLOR_RED
+                        boardString.append(getPieceColor(piece.getTeamColor()));
                         boardString.append(" ").append(getPieceChar(piece)).append(" ");
                     } else {
-                        boardString.append(EscapeSequences.EMPTY); // Use em-space for alignment
+                        boardString.append("   ");
                     }
                 }
                 boardString.append(EscapeSequences.RESET_BG_COLOR).append(EscapeSequences.RESET_TEXT_COLOR).append("\n");
@@ -49,7 +48,7 @@ public class RenderBoard {
         }
 
 
-        return board.toString();
+        return boardString.toString();
     }
 
     private static String getPieceChar(ChessPiece piece) {
