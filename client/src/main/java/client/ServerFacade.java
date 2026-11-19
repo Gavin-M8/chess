@@ -130,9 +130,12 @@ public class ServerFacade {
         var status = response.statusCode();
         if (!isSuccessful(status)) {
             var body = response.body();
-            if (body != null) {
+            if (body != null && status == 500) {
                 String ex = new ResponseException(ResponseException.Code.ServerError, body).toJson();
                 throw ResponseException.fromJson(ex);
+            }
+            else if (body != null) {
+                throw ResponseException.fromJson(body);
             }
             throw new ResponseException(ResponseException.fromHttpStatusCode(status), "Other failure: " + status);
         }

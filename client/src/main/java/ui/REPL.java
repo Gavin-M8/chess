@@ -6,6 +6,7 @@ import java.util.Scanner;
 import client.ChessClient;
 import client.ChessClient.*;
 import client.CommandObject;
+import client.UserState;
 import model.GameData;
 
 public class REPL {
@@ -68,7 +69,13 @@ public class REPL {
     }
 
     private void printPrompt() {
-        System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE + "\n>>> ");
+        String stateString;
+        if (client.userState == UserState.LOGGED_IN) {
+            stateString = "[ logged in ]";
+        } else {
+            stateString = "[ logged out ]";
+        }
+        System.out.print("\n" + EscapeSequences.SET_TEXT_COLOR_BLUE + stateString + " >>> ");
     }
 
 }

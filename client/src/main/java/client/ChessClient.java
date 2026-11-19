@@ -12,7 +12,7 @@ import java.util.Map;
 public class ChessClient {
 
     private final ServerFacade server;
-    private UserState userState = UserState.LOGGED_OUT;
+    public UserState userState = UserState.LOGGED_OUT;
     private String authToken;
     private HashMap<Integer, String> gamesList;
     private HashMap<Integer, String> secretGamesList;
@@ -60,9 +60,9 @@ public class ChessClient {
             `register <username> <password> <email>`    register as a new user
             `login <username> <password>`               login as a returning user
             `logout`                                    logout the current user
-            `create <gameName>`                    create a new chess game
-            `play <gameNumber> <playerColor>`          join a chess game as a player
-            `observe <gameNumber>`                     join a chess game as an observer
+            `create <gameName>`                         create a new chess game
+            `play <gameNumber> <playerColor>`           join a chess game as a player
+            `observe <gameNumber>`                      join a chess game as an observer
             """;
     }
 
@@ -73,10 +73,10 @@ public class ChessClient {
             } else {
                 String username = params[0];
                 String password = params[1];
-                userState = UserState.LOGGED_IN;
 
                 LoginResponse response = server.login(username, password);
                 authToken = response.authToken();
+                userState = UserState.LOGGED_IN;
 
                 return String.format("Successfully logged in as %s", username);
             }
@@ -93,10 +93,10 @@ public class ChessClient {
                 String username = params[0];
                 String password = params[1];
                 String email = params[2];
-                userState = UserState.LOGGED_IN;
 
                 RegisterResponse response = server.register(username, password, email);
                 authToken = response.authToken();
+                userState = UserState.LOGGED_IN;
 
                 return String.format("Successfully registered %s", username);
             }
@@ -124,7 +124,7 @@ public class ChessClient {
             if (authToken == null || userState != UserState.LOGGED_IN) {
                 return "Cannot create game, user not logged in";
             }
-            else if (params == null || params.length != 1) {
+            else if (params == null || params.length != 1 || params[0].matches("\\s*")) {
                 return "create_game requires one parameter: <gameName>";
             }
             else {
@@ -162,6 +162,9 @@ public class ChessClient {
                         formattedGamesList += String.format("\n%s  %s", getGameNumber(gameName), gameName);
                     }
                 }
+                if (gamesList.isEmpty()) {
+                    formattedGamesList += "\n( no games, type `create <gameName>` to make one! ) ";
+                }
 
                 return formattedGamesList;
             }
@@ -176,7 +179,7 @@ public class ChessClient {
                 return "Cannot play game, user not logged in";
             }
             else if (params == null || params.length != 2) {
-                return "play_game requires two parameters: <playerColor> <gameID>";
+                return "play requires two parameters: <playerColor> <gameNumber>";
             }
             else {
                 String playerColor = params[1];
@@ -251,6 +254,8 @@ public class ChessClient {
         try {
             server.clear();
             gameNumber = 1;
+            authToken = null;
+            userState = UserState.LOGGED_OUT;
             return "Successfully cleared database";
         } catch (Throwable e) {
             return e.getMessage();

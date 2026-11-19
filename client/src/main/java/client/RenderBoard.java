@@ -89,7 +89,7 @@ public class RenderBoard {
 
     public static String getPieceColor(ChessGame.TeamColor color) {
         if (color == ChessGame.TeamColor.WHITE) return EscapeSequences.SET_TEXT_COLOR_WHITE;
-        else return EscapeSequences.SET_TEXT_COLOR_BLACK;
+        else return EscapeSequences.SET_TEXT_COLOR_BLUE;
     }
 
     public static String blackHeader() {
