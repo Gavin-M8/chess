@@ -112,7 +112,7 @@ public class Server {
                 if (!canJoinGame && message.equals("Error: data access error")) {ResponseUtilities.sendJoinGameResponse(ctx, 500, "Error: Could not find game");}
                 else if (!canJoinGame && message.equals("Error: Bad request")) {ResponseUtilities.sendJoinGameResponse(ctx, 400, message);}
                 else if (!canJoinGame && message.equals("Error: Unauthorized")) {ResponseUtilities.sendJoinGameResponse(ctx, 401, message);}
-                else if (!canJoinGame && message.equals("Error: Player color already taken")) {ResponseUtilities.sendJoinGameResponse(ctx, 403, message);}
+                else if (!canJoinGame && message.equals("Error: Already taken")) {ResponseUtilities.sendJoinGameResponse(ctx, 403, message);}
                 else {ResponseUtilities.sendJoinGameResponse(ctx, 200, message);}}});}
 
     public int run(int desiredPort) {
