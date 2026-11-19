@@ -18,16 +18,8 @@ public class RenderBoard {
                 boardString.append(EscapeSequences.SET_BG_COLOR_WHITE + EscapeSequences.SET_TEXT_COLOR_BLACK);
                 boardString.append(" ").append(row).append(" ");
                 for (int col = 1; col <= 8; col++) {
-                    boolean isWhite = (row + col) % 2 == 1;
-                    ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-                    boardString.append(getSquareColor(isWhite));
-
-                    if (piece != null) {
-                        boardString.append(getPieceColor(piece.getTeamColor()));
-                        boardString.append(" ").append(getPieceChar(piece)).append(" ");
-                    } else {
-                        boardString.append("   ");
-                    }
+                    String rowString = addRow(row, col, board);
+                    boardString.append(rowString);
                 }
                 boardString.append(EscapeSequences.SET_BG_COLOR_WHITE + EscapeSequences.SET_TEXT_COLOR_BLACK);
                 boardString.append(" ").append(row).append(" ");
@@ -41,16 +33,8 @@ public class RenderBoard {
                 boardString.append(EscapeSequences.SET_BG_COLOR_WHITE + EscapeSequences.SET_TEXT_COLOR_BLACK);
                 boardString.append(" ").append(row).append(" ");
                 for (int col = 8; col >= 1; col--) {
-                    boolean isWhite = (row + col) % 2 == 1;
-                    ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-                    boardString.append(getSquareColor(isWhite));
-
-                    if (piece != null) {
-                        boardString.append(getPieceColor(piece.getTeamColor()));
-                        boardString.append(" ").append(getPieceChar(piece)).append(" ");
-                    } else {
-                        boardString.append("   ");
-                    }
+                    String rowString = addRow(row, col, board);
+                    boardString.append(rowString);
                 }
                 boardString.append(EscapeSequences.SET_BG_COLOR_WHITE + EscapeSequences.SET_TEXT_COLOR_BLACK);
                 boardString.append(" ").append(row).append(" ");
@@ -98,5 +82,20 @@ public class RenderBoard {
 
     public static String whiteHeader() {
         return EscapeSequences.SET_BG_COLOR_WHITE + EscapeSequences.SET_TEXT_COLOR_BLACK + "    a  b  c  d  e  f  g  h    " + EscapeSequences.RESET_BG_COLOR;
+    }
+
+    public static String addRow(int row, int col, ChessBoard board) {
+        String result = "";
+        boolean isWhite = (row + col) % 2 == 1;
+        ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+        result += getSquareColor(isWhite);
+
+        if (piece != null) {
+            result += getPieceColor(piece.getTeamColor());
+            result += (" " + getPieceChar(piece) + " ");
+        } else {
+            result += "   ";
+        }
+        return result;
     }
 }
