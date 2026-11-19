@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import server.ResponseObject.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ChessClient {
@@ -13,10 +14,11 @@ public class ChessClient {
     private final ServerFacade server;
     private UserState userState = UserState.LOGGED_OUT;
     private String authToken;
-    private ArrayList<Map<String, Object>> gamesList;
+    private HashMap<Integer, String> gamesList;
 
     public ChessClient(String serverURL) {
         this.server = new ServerFacade(serverURL);
+        this.gamesList = new HashMap<>();
     }
 
 
@@ -57,7 +59,6 @@ public class ChessClient {
             `create_game <gameName>`                    create a new chess game
             `play_game <playerColor> <gameID>`          join a chess game as a player
             `observe_game <gameID>`                     join a chess game as an observer
-            
             """;
     }
 
@@ -125,6 +126,7 @@ public class ChessClient {
             else {
                 String gameName = params[0];
                 CreateGameResponse response = server.createGame(authToken, gameName);
+                gamesList.put(response.gameID(), gameName);
 
                 return String.format("Created game:\n gameName:%s     gameID:%s", gameName, response.gameID());
             }
@@ -134,19 +136,22 @@ public class ChessClient {
     }
 
     public String listGames(String authToken) {
-        StringBuilder formattedGamesList = new StringBuilder("Name:   ID:");
+        String formattedGamesList = "Name:   ID:";
         try {
             if (authToken == null || userState != UserState.LOGGED_IN) {
                 return "Cannot list games, user not logged in";
             }
             else {
                 ListGamesResponse response = server.listGames(authToken);
-                gamesList = response.games();
-                for (Map<String, Object> game : gamesList) {
-                    formattedGamesList.append(String.format("\n%s   %s", game.get("gameName"), game.get("gameID")));
+                for (Map<String, Object> game : response.games()) {
+                    Object rawId = game.get("gameID");
+                    int gameID = ((Number) rawId).intValue();
+                    String gameName = (String) game.get("gameName");
+                    gamesList.put(gameID, gameName);
+                    formattedGamesList += String.format("\n%s   %s", gameName, gameID);
                 }
 
-                return formattedGamesList.toString();
+                return formattedGamesList;
             }
         } catch (Throwable e) {
             return String.format("%s", e.getMessage());
@@ -178,9 +183,14 @@ public class ChessClient {
                 } catch (NumberFormatException e) {
                     return "Invalid gameID: please input a four digit gameID";
                 }
-
-                JoinGameResponse response = server.joinGame(authToken, color, gameID);
-
+                if (!gamesList.containsKey(gameID)) {
+                    return "Invalid gameID";
+                }
+                try {
+                    JoinGameResponse response = server.joinGame(authToken, color, gameID);
+                } catch (ResponseException e) {
+                    return e.getMessage();
+                }
                 ChessGame game = new ChessGame();
                 ChessBoard board = game.getBoard();
                 board.resetBoard();
@@ -192,7 +202,7 @@ public class ChessClient {
                 return String.format("Joined game %s as %s \n\n%s", gameID, playerColor, renderedBoard);
             }
         } catch (Throwable e) {
-            return String.format("%s", e.getMessage());
+            return e.getMessage();
         }
     }
 

@@ -21,7 +21,7 @@ public class REPL {
 
     public void run() {
 
-        System.out.println("Welcome to Chess! Type help to get started!");
+        System.out.println(EscapeSequences.SET_TEXT_BOLD + EscapeSequences.SET_TEXT_COLOR_BLUE + "\nWelcome to Chess! Type `help` to get started");
 
         Scanner scanner = new Scanner(System.in);
         String result = "";
@@ -33,15 +33,13 @@ public class REPL {
 
             try {
                 result = client.eval(cmd);
-
-                // fix the formatting of the result, store most recent authToken in authToken variable
-
-                System.out.print(result);
+                System.out.print(EscapeSequences.RESET_TEXT_COLOR + EscapeSequences.RESET_TEXT_BOLD_FAINT + result);
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);
             }
         }
+        System.out.println("\nThanks for playing chess!");
     }
 
     private CommandObject getCmd(String line) {
@@ -70,7 +68,7 @@ public class REPL {
     }
 
     private void printPrompt() {
-        System.out.print("\n>>> ");
+        System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE + "\n>>> ");
     }
 
 }

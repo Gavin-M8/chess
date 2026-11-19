@@ -50,9 +50,13 @@ public class ServerFacade {
         }
 
         // list games /game GET
-        public ListGamesResponse listGames(String authToken) throws ResponseException {
+        public ListGamesResponse listGames(String authToken) throws ResponseException, URISyntaxException {
             String path = "/game";
-            var request = buildRequest("GET", path, null, authToken);
+            var request = HttpRequest.newBuilder()
+                    .uri(new URI( serverURL + path))
+                    .GET()
+                    .setHeader("authorization", authToken)
+                    .build();
             var response = sendRequest(request);
             return handleResponse(response, ListGamesResponse.class);
         }
@@ -123,7 +127,8 @@ public class ServerFacade {
         if (!isSuccessful(status)) {
             var body = response.body();
             if (body != null) {
-                throw ResponseException.fromJson(body);
+                String ex = new ResponseException(ResponseException.Code.ServerError, body).toJson();
+                throw ResponseException.fromJson(ex);
             }
             throw new ResponseException(ResponseException.fromHttpStatusCode(status), "Other failure: " + status);
         }
