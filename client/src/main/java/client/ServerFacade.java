@@ -42,11 +42,15 @@ public class ServerFacade {
         }
 
         // logout user /session DELETE
-        public LogoutResponse logout(String authToken) throws ResponseException {
+        public void logout(String authToken) throws ResponseException, URISyntaxException {
             String path = "/session";
-            var request = buildRequest("DELETE", path, null, authToken);
+            var request = HttpRequest.newBuilder()
+                    .uri(new URI( serverURL + path))
+                    .DELETE()
+                    .setHeader("authorization", authToken)
+                    .build();
             var response = sendRequest(request);
-            return handleResponse(response, LogoutResponse.class);
+            handleResponse(response, LogoutResponse.class);
         }
 
         // list games /game GET

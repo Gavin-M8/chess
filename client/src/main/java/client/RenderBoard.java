@@ -13,6 +13,7 @@ public class RenderBoard {
         StringBuilder boardString = new StringBuilder();
 
         if (color == RenderPerspective.WHITE) {
+
             for (int row = 8; row >= 1; row--) {
                 for (int col = 1; col <= 8; col++) {
                     boolean isWhite = (row + col) % 2 == 1;
